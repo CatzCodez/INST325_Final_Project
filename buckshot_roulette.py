@@ -9,7 +9,7 @@ class game:
     def __init__(self):
         pass
     def take_turn(player):
-    """ Allows a player to take a turn
+        """ Allows a player to take a turn
     
     Args: 
         player (player): Current player taking turn
