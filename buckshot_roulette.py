@@ -11,14 +11,16 @@ class game:
     def take_turn(player):
         """ Allows a player to take a turn
     
-    Args: 
-        player (player): Current player taking turn
-    Returns:
-        ???: Current player's action
-    """
+        Args: 
+            player (player): Current player taking turn
+        Returns:
+            ???: Current player's action
+        """
+    
     def check_game_status(self, player):
         """
         Checks status of game
+        
         Args: 
             player(player): Player taking turn
         Returns: 
