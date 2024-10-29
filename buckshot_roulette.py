@@ -35,3 +35,14 @@ class game:
         Side effect:
             A new item for the player
         """
+    def shoot_target(player, target, knife = False):
+        """
+        Executes a shot from the player to the target
+        
+        Args:
+            player: the current player whose turn it is
+            target: whom the player will shoot at
+            knife: whether the next shot will do twice as much damage. Automatically set to false
+        Return:
+        """
+        pass
