@@ -16,3 +16,13 @@ class game:
     Returns:
         ???: Current player's action
     """
+    def check_game_status(self, player):
+        """
+        Checks status of game
+        Args: 
+            player(player): Player taking turn
+        Returns: 
+            game Status
+        """
+        pass
+    
