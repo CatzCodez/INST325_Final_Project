@@ -27,4 +27,11 @@ class game:
             game Status
         """
         pass
-    
+    def loot_box(player):
+        """
+        Will choose up to 4 random items for player.
+        
+        Args:
+        Side effect:
+            A new item for the player
+        """
