@@ -97,7 +97,7 @@ class GameEngine:
         player1_name = input("Enter name for Player 1: ")
         player1 = Player(player1_name)
         if ai_mode:
-            print("AI mode selected. The opponent will be a computer.")
+            print("[AI mode] selected. The opponent will be a computer.")
             player2 = ComputerPlayer()
         else:
             player2_name = input("Enter name for Player 2: ")
@@ -108,18 +108,17 @@ class GameEngine:
         pass
     
     def start_game(self):
-        print(f"Starting a '{self.difficulty} mode' game of Buckshot Roulette!")
-        sleep(2)
+        print(f"You are playing on [{self.difficulty} mode]")
+        _ = input("Press enter to see the shotgun shells: ")
+        print(f"=========================================")
         print("Here are the shells in the shotgun")
         self.round_manager.setup_shells(self.difficulty) #get shell sequence
-        sleep(2)
-
-        _ = input("Press enter to loot when ready.")
+        _ = input("Press enter to get loot.")
         self.display_table()
         
         #Generating and displaying lootbox
         if self.difficulty == "hard":
-            print(f"================================")
+            print(f"=========================================")
             for player in self.players:
                 loot_box = self.generate_loot_box() 
                 print(f"These are {player.name} loot box items: ")
@@ -144,6 +143,8 @@ class GameEngine:
 
 if __name__ == "__main__":
     difficulty = input("Choose a difficulty (easy/hard): ")
+    print(f"==================================================")
     ai_mode = input("Do you want to play against the computer? (yes/no): ") == 'yes'
+    print(f"==================================================")
     game = GameEngine(difficulty, ai_mode)
     game.start_game()
