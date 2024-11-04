@@ -57,7 +57,7 @@ class RoundManager:
         else:
             for i in range(7):
                 self.shells.append(random.choice(rounds))
-        print(self.shells)
+        print(f"{self.shells}\n")
         #Reorder self.shells randomly
         random.shuffle(self.shells)
 
@@ -110,7 +110,7 @@ class GameEngine:
     def start_game(self):
         print(f"You are playing on [{self.difficulty} mode]")
         _ = input("Press enter to see the shotgun shells: ")
-        print(f"=========================================")
+        print(f"=========================================\n")
         print("Here are the shells in the shotgun")
         self.round_manager.setup_shells(self.difficulty) #get shell sequence
         _ = input("Press enter to get loot.")
