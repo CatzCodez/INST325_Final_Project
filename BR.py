@@ -128,8 +128,11 @@ class GameEngine:
                     print(f"[{item.name}]")
                 print(f"=========================================")
                 player.items.extend(loot_box)
+        
+        #Determines the player that goes first        
         go_first = random.choice(self.players).name
         print(f"{go_first} goes first!")
+        print(f"=========================================")
     
     def generate_loot_box(self):
         return random.sample(list(self.loot_pool), 4)
