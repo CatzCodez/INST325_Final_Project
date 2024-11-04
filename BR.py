@@ -75,7 +75,9 @@ class GameEngine:
             Item('knife', 'double_damage'),
             Item('pill', 'heal'),
             Item('magnifying glass', 'reveal'),
-            Item('handcuff', 'stun_opponent')
+            Item('handcuff', 'stun_opponent'),
+            Item('inverter', 'switches around the current blank and live rounds in the chamber'),
+            Item('beer', "eject current shell in chamber")
         ])
 
     def create_players(self, ai_mode):
@@ -89,6 +91,9 @@ class GameEngine:
             player2 = Player(player2_name)
         return [player1, player2]
 
+    def display_table(self):
+        pass
+    
     def start_game(self):
         pass
 
