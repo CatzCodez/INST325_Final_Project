@@ -144,6 +144,7 @@ class GameEngine:
         pass
 
 if __name__ == "__main__":
+    print(f"==================================================")
     difficulty = input("Choose a difficulty (easy/hard): ")
     print(f"==================================================")
     ai_mode = input("Do you want to play against the computer? (yes/no): ") == 'yes'
