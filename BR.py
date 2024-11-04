@@ -16,6 +16,9 @@ class Player:
     def is_alive(self):
         pass
 
+    def __str__(self):
+        return self.name
+
 # AI player class
 class ComputerPlayer(Player):
     def __init__(self, name="Computer"):
@@ -96,7 +99,7 @@ class GameEngine:
         else:
             player2_name = input("Enter name for Player 2: ")
             player2 = Player(player2_name)
-        return [player1, player2]
+        return [str(player1), str(player2)]
 
     def display_table(self):
         pass
