@@ -95,6 +95,7 @@ class GameEngine:
 
     def create_players(self, ai_mode):
         player1_name = input("Enter name for Player 1: ")
+        print(f"==================================================")
         player1 = Player(player1_name)
         if ai_mode:
             print("[AI mode] selected. The opponent will be a computer.")
@@ -110,7 +111,7 @@ class GameEngine:
     def start_game(self):
         print(f"You are playing on [{self.difficulty} mode]")
         _ = input("Press enter to see the shotgun shells: ")
-        print(f"=========================================\n")
+        print(f"=========================================")
         print("Here are the shells in the shotgun")
         self.round_manager.setup_shells(self.difficulty) #get shell sequence
         _ = input("Press enter to get loot.")
@@ -121,9 +122,10 @@ class GameEngine:
             print(f"=========================================")
             for player in self.players:
                 loot_box = self.generate_loot_box() 
-                print(f"These are {player.name} loot box items: ")
+                print(f"These are [{player.name}] loot box items: ")
                 for item in loot_box:
                     print(f"[{item.name}]")
+                print(f"=========================================")
                 player.items.extend(loot_box)
     
     def generate_loot_box(self):
