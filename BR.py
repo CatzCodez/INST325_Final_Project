@@ -35,14 +35,29 @@ class Item:
 
 # RoundManager class for managing game rounds
 class RoundManager:
+    """
+    Class responsible for shotgun
+    """
     def __init__(self):
-        self.shells = []
+        #Make a list of shells, start with one live round
+        self.shells = ["live"]
 
-    def setup_shells(self):
-        pass
+    def setup_shells(self, difficulty):
+        #List with two types of rounds
+        rounds = ["live", "blank"]
+        #Load certain amount of rounds to self.shells based on difficulty
+        if difficulty == "easy":
+            for i in range(5):
+                self.shells.append(random.choice(rounds))
+        else:
+            for i in range(7):
+                self.shells.append(random.choice(rounds))
+        #Reorder self.shells randomly
+        self.shells = random.shuffle(self.shells)
 
     def get_next_shell(self):
-        pass
+        #After shooting, pop current shell from self.shells
+        self.shells.pop(0)
 
 # TurnManager class for managing player turns
 class TurnManager:
