@@ -107,10 +107,11 @@ class GameEngine:
         self.display_table()
         
         #Generating and displaying lootbox
-        loot_box = self.generate_loot_box()
-        print(f"These are your loot box items: ")
-        for item in loot_box:
-            print(f" {item.name}")
+        if self.difficulty == "hard":
+            loot_box = self.generate_loot_box()
+            print(f"These are your loot box items: ")
+            for item in loot_box:
+                print(f" {item.name}")
     
     def generate_loot_box(self):
         return random.sample(list(self.loot_pool.values()), 4)
