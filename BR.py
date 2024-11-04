@@ -52,7 +52,7 @@ class RoundManager:
 
         #Load certain amount of rounds to self.shells based on difficulty
         if difficulty == "easy":
-            for i in range(5):
+            for i in range(4):
                 self.shells.append(random.choice(rounds))
         else:
             for i in range(7):
@@ -114,11 +114,12 @@ class GameEngine:
         print(f"=========================================")
         print("Here are the shells in the shotgun")
         self.round_manager.setup_shells(self.difficulty) #get shell sequence
-        _ = input("Press enter to get loot.")
+        
         self.display_table()
         
         #Generating and displaying lootbox
         if self.difficulty == "hard":
+            _ = input("Press enter to get loot.")
             print(f"=========================================")
             for player in self.players:
                 loot_box = self.generate_loot_box() 
@@ -127,6 +128,8 @@ class GameEngine:
                     print(f"[{item.name}]")
                 print(f"=========================================")
                 player.items.extend(loot_box)
+        go_first = random.choice(self.players).name
+        print(f"{go_first} goes first!")
     
     def generate_loot_box(self):
         return random.sample(list(self.loot_pool), 4)
