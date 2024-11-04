@@ -102,8 +102,8 @@ class GameEngine:
         pass
     
     def start_game(self):
-        print(f"Starting a {self.difficulty} game of Buckshot Roulette!")
-        self.round_manager.setup_shells() #get shell sequence
+        print(f"Starting a '{self.difficulty} mode' game of Buckshot Roulette!")
+        self.round_manager.setup_shells(self.difficulty) #get shell sequence
         self.display_table()
         
         #Generating and displaying lootbox
@@ -114,7 +114,7 @@ class GameEngine:
                 print(f" {item.name}")
     
     def generate_loot_box(self):
-        return random.sample(list(self.loot_pool.values()), 4)
+        return random.sample(list(self.loot_pool), 4)
 
     def display_starting_shells(self):
         pass
