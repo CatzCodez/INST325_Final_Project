@@ -111,12 +111,12 @@ class GameEngine:
         
         #Generating and displaying lootbox
         if self.difficulty == "hard":
-            loot_box = self.generate_loot_box()
             print(f"================================")
-            print(f"These are {self.players} loot box items: ")
-            for item in loot_box:
-                print(f"[{item.name}]")
             for player in self.players:
+                loot_box = self.generate_loot_box() 
+                print(f"These are {player.name} loot box items: ")
+                for item in loot_box:
+                    print(f"[{item.name}]")
                 player.items.extend(loot_box)
     
     def generate_loot_box(self):
