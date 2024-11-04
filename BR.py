@@ -1,4 +1,5 @@
 import random
+from time import sleep
 
 # Base class for players
 class Player:
@@ -47,7 +48,8 @@ class RoundManager:
 
     def setup_shells(self, difficulty):
         #List with two types of rounds
-        rounds = ["live", "blank"]
+        rounds = ["live", "blank", "blank", "blank"]
+
         #Load certain amount of rounds to self.shells based on difficulty
         if difficulty == "easy":
             for i in range(5):
@@ -55,8 +57,9 @@ class RoundManager:
         else:
             for i in range(7):
                 self.shells.append(random.choice(rounds))
+        print(self.shells)
         #Reorder self.shells randomly
-        self.shells = random.shuffle(self.shells)
+        random.shuffle(self.shells)
 
     def get_next_shell(self):
         #After shooting, pop current shell from self.shells
@@ -106,7 +109,12 @@ class GameEngine:
     
     def start_game(self):
         print(f"Starting a '{self.difficulty} mode' game of Buckshot Roulette!")
+        sleep(2)
+        print("Here are the shells in the shotgun")
         self.round_manager.setup_shells(self.difficulty) #get shell sequence
+        sleep(2)
+
+        _ = input("Press enter to loot when ready.")
         self.display_table()
         
         #Generating and displaying lootbox
