@@ -33,14 +33,6 @@ class Item:
     def apply_effect(self, player):
         pass
 
-# LootBoxManager class for managing loot boxes
-class LootBoxManager:
-    def __init__(self, item_pool):
-        self.item_pool = item_pool
-
-    def generate_loot_box(self):
-        pass
-
 # RoundManager class for managing game rounds
 class RoundManager:
     def __init__(self):
@@ -71,14 +63,14 @@ class GameEngine:
         self.players = self.create_players(ai_mode)
         self.turn_manager = TurnManager(self.players)
         self.round_manager = RoundManager()
-        self.loot_box_manager = LootBoxManager([
-            Item('knife', 'double_damage'),
-            Item('pill', 'heal'),
+        self.loot_pool = [
             Item('magnifying glass', 'reveal'),
+            Item('pill', 'heal'),
+            Item('knife', 'double_damage'),
             Item('handcuff', 'stun_opponent'),
-            Item('inverter', 'switches around the current blank and live rounds in the chamber'),
-            Item('beer', "eject current shell in chamber")
-        ])
+            Item('inverter', 'switch_shells'),
+            Item('beer', 'eject_shell')
+        ]
 
     def create_players(self, ai_mode):
         player1_name = input("Enter name for Player 1: ")
@@ -96,6 +88,9 @@ class GameEngine:
     
     def start_game(self):
         pass
+    
+    def generate_loot_box(self):
+        return random.sample(list(self.item_pool.values()), 2)
 
     def display_starting_shells(self):
         pass
