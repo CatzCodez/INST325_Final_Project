@@ -103,9 +103,6 @@ class GameEngine:
     def check_game_status(self):
         pass
 
-    def take_turn(self):
-        pass
-
     def handle_shoot(self, player):
         pass
 
