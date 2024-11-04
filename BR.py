@@ -99,7 +99,7 @@ class GameEngine:
         else:
             player2_name = input("Enter name for Player 2: ")
             player2 = Player(player2_name)
-        return [str(player1), str(player2)]
+        return [player1, player2]
 
     def display_table(self):
         pass
@@ -116,6 +116,8 @@ class GameEngine:
             print(f"These are {self.players} loot box items: ")
             for item in loot_box:
                 print(f"[{item.name}]")
+            for player in self.players:
+                player.items.extend(loot_box)
     
     def generate_loot_box(self):
         return random.sample(list(self.loot_pool), 4)
