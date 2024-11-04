@@ -88,7 +88,7 @@ class GameEngine:
     
     def start_game(self):
         print(f"Starting a {self.difficulty} game of Buckshot Roulette!")
-        self.round_manager.setup_shells() # get shell sequence
+        self.round_manager.setup_shells() #get shell sequence
         self.display_table()
         
         #Generating and displaying lootbox
