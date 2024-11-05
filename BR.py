@@ -123,33 +123,56 @@ class GameEngine:
         return [player1, player2]
 
     def display_table(self):
-        print("\n" + "-" * 20 + f" {self.players[1].name} " + "-" * 20)
-        print("|" + " " * 48 + "|")
-        print("|" + f" Lives: {self.players[1].lives}".ljust(48) + "|")
-        print("|" + f" Items: {', '.join([item.name for item in self.players[1].items]) if self.players[1].items else 'None'}".ljust(48) + "|")
-        print("|" + " " * 48 + "|")
-        print("-" * 50)
-        
-        print("Shotgun Shells:")
-        shells_display = []  # Create an empty list to store the shell display strings
+        #Determine the maximum length for flexible table width
+        max_name_length = max(len(player.name) for player in self.players)
+        max_item_length = 4 * (10 + 2) - 2  # Account for up to 4 items per row, with space for ', '
+        table_width = max(60, max_name_length + 20, max_item_length + 15)
 
-        # Loop through the indices using range(len())
+        def format_items(items):
+            #Split items into two rows if there are more than 4 items
+            if len(items) > 4:
+                first_row = ', '.join([item.name for item in items[:4]])
+                second_row = ', '.join([item.name for item in items[4:]])
+                return [first_row, second_row]
+            else:
+                return [', '.join([item.name for item in items])]
+
+        #Display the first player's table
+        player1 = self.players[1]
+        print("\n" + "-" * ((table_width - len(player1.name)) // 2) + f" {player1.name} " + "-" * ((table_width - len(player1.name)) // 2))
+        print("|" + " " * (table_width - 2) + "|")
+        print("|" + f" Lives: {player1.lives}".ljust(table_width - 2) + "|")
+        item_rows = format_items(player1.items) if player1.items else ["None"]
+        
+        for row in item_rows:
+            print("|" + f" Items: {row}".ljust(table_width - 2) + "|")
+        print("|" + " " * (table_width - 2) + "|")
+        print("-" * table_width)
+
+        #Display shotgun shells in between the tables
+        print("\nShotgun Shells:")
+        shells_display = []  #Create an empty list to store the shell display strings
         for i in range(len(self.round_manager.shells)):
-            shell = self.round_manager.shells[i]  # Access the shell at the current index
-            if i == 0:  # Display the first shell
+            shell = self.round_manager.shells[i]  #Access the shell at the current index
+            if i == 0:  #Display the first shell
                 shells_display.append(f"[{shell}]")
             else:
                 shells_display.append("[?]")
 
-        # Join the elements with " | " as a separator and print
+        #Join the elements with " | " as a separator and print
         print(" | ".join(shells_display))
 
-        print("-" * 20 + f" {self.players[0].name} " + "-" * 20)
-        print("|" + " " * 48 + "|")
-        print("|" + f" Lives: {self.players[0].lives}".ljust(48) + "|")
-        print("|" + f" Items: {', '.join([item.name for item in self.players[0].items]) if self.players[0].items else 'None'}".ljust(48) + "|")
-        print("|" + " " * 48 + "|")
-        print("-" * 50)
+        # Display the second player's table
+        player2 = self.players[0]  # Assuming this is the first player (e.g., Brian)
+        print("\n" + "-" * ((table_width - len(player2.name)) // 2) + f" {player2.name} " + "-" * ((table_width - len(player2.name)) // 2))
+        print("|" + " " * (table_width - 2) + "|")
+        print("|" + f" Lives: {player2.lives}".ljust(table_width - 2) + "|")
+        item_rows = format_items(player2.items) if player2.items else ["None"]
+        
+        for row in item_rows:
+            print("|" + f" Items: {row}".ljust(table_width - 2) + "|")
+        print("|" + " " * (table_width - 2) + "|")
+        print("-" * table_width)
     
     def start_game(self):
         print(f"You are playing on [{self.difficulty} mode]")
