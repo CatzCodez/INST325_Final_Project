@@ -7,7 +7,7 @@ class Player:
         self.name = name
         self.lives = 3
         self.items = []
-    def player_action(self, shells):
+    def player_action(self, shotgun):
         while True: 
             actions = input("Enter 1 to use shotgun or enter 2 to use an item: ")
             if actions == '1': 
@@ -41,14 +41,14 @@ class Player:
                             break
                     if chosen_item:
                         print(f"Chosen item: {chosen_item}")
-                        self.use_item(chosen_item , RoundManager)
+                        self.use_item(chosen_item , shotgun)
                         break
                         
 
-    def use_item(self, item, roundManager):
+    def use_item(self, item, shotgun):
         if(item.name == "magnifying glass"):
             print(f"{self.name} used magnifying glass")
-            print(f"{roundManager.shells[0]}")
+            print(f"{shotgun.shells[0]}")
         elif(item.name == "pill"):
             pass
         elif(item.name == "knife"):
@@ -234,7 +234,7 @@ class GameEngine:
         
         #Game loop
         current_player = go_first
-        action = current_player.player_action(RoundManager)
+        action = current_player.player_action(self.round_manager)
     
     def generate_loot_box(self):
         return random.sample(list(self.loot_pool), 4)
