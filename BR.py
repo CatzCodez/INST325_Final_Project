@@ -12,7 +12,7 @@ def loading_bar(duration, length=30):
 class Player:
     def __init__(self, name):
         self.name = name
-        self.lives = 1
+        self.lives = 3
         self.items = []
         self.double_damage = False
         
@@ -23,7 +23,7 @@ class Player:
             print("==================================================")
             #Shotgun use
             if actions == '1': 
-                answer = input("Shoot yourself or opponent?(Myself/Opponent): ")
+                answer = input("Shoot yourself or opponent? (Myself/Opponent): ").strip().lower()
                 print("==================================================")
                 if answer == "Myself":
                     shell_result = game_engine.handle_shoot(self, self)
@@ -41,11 +41,12 @@ class Player:
                         if not opponent.is_alive():
                             break #Skip the "Switching to next turn" message if the opponent is out of the game.
                         print(f"Switching to {next_player.name}'s turn.")
+                        sleep(2)
+                        game_engine.display_table()
                     break
                 else:
-                    print("Invalid input. Please enter 'Myself' or 'Opponent'.")
-                    continue
-                        
+                    print("Invalid input. Please enter: 'Myself'/'Opponent'")
+                    continue     
             #Item use
             elif actions == '2': 
                 if not self.items:
@@ -57,7 +58,7 @@ class Player:
                     for item in self.items:
                         print(f"{counter}. [{item.name}]")
                         counter +=1
-                    item_chosen = input("Choose item or type 'back' to go back: ")
+                    item_chosen = input("Choose item OR type 'back' to go back: ").strip().lower()
                     chosen_item = None
                     if item_chosen == "back":
                         break
@@ -67,6 +68,9 @@ class Player:
                         if item.name == item_chosen:
                             chosen_item = item
                             break
+                    else:
+                        print("================================================")
+                        print("Invalid input. Please enter: Corresponding item #, or item name")
                     if chosen_item:
                         print("================================================")
                         print(f"Chosen item: {chosen_item}\n")
@@ -96,7 +100,11 @@ class Player:
                             break
                         else:
                             print("Item not used. Returning to item selection.")
-                        
+                            print("================================================")
+                            sleep(0.8)
+            else:
+                print("Invalid input. Please enter: '1'/'2'")         
+                continue
 
     def use_item(self, item, shotgun):
         if(item.name == "magnifying glass"):
