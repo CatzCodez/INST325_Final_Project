@@ -45,7 +45,7 @@ class Player:
                             chosen_item = item
                             break
                     if chosen_item:
-                        print("======================================")
+                        print("================================================")
                         print(f"Chosen item: {chosen_item}\n")
                             
                         # Describe what the item does
@@ -63,7 +63,7 @@ class Player:
                             print("Description => This item ejects the current shell.")
                         
                         # Ask for confirmation to use the item
-                        print("======================================")
+                        print("================================================")
                         confirm = input("Do you want to use this item? (yes or no): ").strip().lower()
                         if confirm == 'yes':
                             sleep(1)
@@ -77,29 +77,29 @@ class Player:
 
     def use_item(self, item, shotgun):
         if(item.name == "magnifying glass"):
-            print("======================================")
+            print("================================================")
             print(f"{self.name} used magnifying glass.")
             shotgun.reveal_shell = True
             print(f"Current shell is: {shotgun.shells[0]}")
-            print("======================================")
+            print("================================================")
             self.items.remove(item)
             
         elif(item.name == "pill"):
-            print("======================================")
+            print("================================================")
             print(f"{self.name} used a pill.")
             if self.lives < 3:
                 self.lives += 1
                 print(f"{self.name} has regained one life.")
             else:
                 print(f"{self.name} is already at full health. What a waste!")
-            print("======================================")
+            print("================================================")
             self.items.remove(item)
             
         elif(item.name == "knife"):
-            print("======================================")
+            print("================================================")
             print(f"{self.name} cuts the shotgun in half!")
-            ####
-            print("======================================")
+            #Work on this
+            print("================================================")
             self.items.remove(item)
         elif(item.name == "handcuff"):
             pass
@@ -277,7 +277,6 @@ class GameEngine:
         #Game loop
         while self.check_game_status():
             current_player = self.players[self.current_player_index]
-            print(f"Current player: {current_player.name}")
             current_player.player_action(self.round_manager, self)
             self.switch_turn()
     
