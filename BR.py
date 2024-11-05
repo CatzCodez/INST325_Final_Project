@@ -1,6 +1,12 @@
 import random
 from time import sleep
 
+def loading_bar(duration, length=30):
+    """Simulate a loading bar in the console with a 'Complete!' message."""
+    for i in range(length):
+        sleep(duration / length)
+        print(f"\rLoading table:[{'#' * (i + 1)}{'.' * (length - i - 1)}]", end='', flush=True)
+    print("\nLoading complete!\n=========================================")
 
 # Base class for players
 class Player:
@@ -10,7 +16,7 @@ class Player:
         self.items = []
     def player_action(self, shotgun, game_engine):
         while True: 
-            actions = input(f"[{self.name}]: Enter 1 to use shotgun or enter 2 to use an item: ")
+            actions = input(f"\n[{self.name}]: Enter 1 to use shotgun or enter 2 to use an item: ")
             
             #Shotgun use
             if actions == '1': 
@@ -191,7 +197,65 @@ class GameEngine:
             player2_name = input("Enter name for Player 2: ")
             player2 = Player(player2_name)
         return [player1, player2]
+    
+    def start_game(self):
+        print(f"You are playing on [{self.difficulty} mode]")
+        _ = input("Press enter to see the shotgun shells: ")
+        print(f"=========================================")
+        print("Here are the shells in the shotgun")
+        self.round_manager.setup_shells(self.difficulty) #get shell sequence
+        
+        #Generating and displaying lootbox
+        if self.difficulty == "hard":
+            _ = input("Press enter to get loot.")
+            print(f"=========================================")
+            for player in self.players:
+                loot_box = self.generate_loot_box() 
+                print(f"These are [{player.name}] loot box items: ")
+                for item in loot_box:
+                    print(f"[{item.name}]")
+                print(f"=========================================")
+                player.items.extend(loot_box)
+        
+        #Determines the player that goes first        
+        go_first = random.choice(self.players)
+        self.current_player_index = self.players.index(go_first)
+        sleep(1)
+        print(f"{go_first} goes first!")
+        loading_bar(1)
+        
+        sleep(1)
+        self.display_table()
+        
+        #Game loop
+        while self.check_game_status():
+            current_player = self.players[self.current_player_index]
+            current_player.player_action(self.round_manager, self)
+            self.switch_turn()
+    
+    def generate_loot_box(self):
+        return random.sample(list(self.loot_pool), 4)
+    
+    def switch_turn(self):
+        self.current_player_index = (self.current_player_index + 1) % len(self.players)
 
+    def check_game_status(self):
+        alive_players = [player for player in self.players if player.is_alive()]
+        if len(alive_players) == 1:
+            print(f"The game is over! {alive_players[0].name} is the winner!")
+            self.display_winner(alive_players[0])
+            return False
+        elif len(alive_players) == 0:
+            print("The game is over! No one survived.")
+            return False
+        return True
+
+    def handle_shoot(self, player):
+        pass
+
+    def display_winner(self):
+        pass
+    
     def display_table(self):
         #Determine the maximum length for flexible table width
         max_name_length = max(len(player.name) for player in self.players)
@@ -244,64 +308,6 @@ class GameEngine:
             print("|" + f" Items: {row}".ljust(table_width - 2) + "|")
         print("|" + " " * (table_width - 2) + "|")
         print("-" * table_width)
-    
-    def start_game(self):
-        print(f"You are playing on [{self.difficulty} mode]")
-        _ = input("Press enter to see the shotgun shells: ")
-        print(f"=========================================")
-        print("Here are the shells in the shotgun")
-        self.round_manager.setup_shells(self.difficulty) #get shell sequence
-        
-        #Generating and displaying lootbox
-        if self.difficulty == "hard":
-            _ = input("Press enter to get loot.")
-            print(f"=========================================")
-            for player in self.players:
-                loot_box = self.generate_loot_box() 
-                print(f"These are [{player.name}] loot box items: ")
-                for item in loot_box:
-                    print(f"[{item.name}]")
-                print(f"=========================================")
-                player.items.extend(loot_box)
-        
-        #Determines the player that goes first        
-        go_first = random.choice(self.players)
-        self.current_player_index = self.players.index(go_first)
-        sleep(1)
-        print(f"{go_first} goes first!")
-        print(f"=========================================")
-        
-        sleep(1)
-        self.display_table()
-        
-        #Game loop
-        while self.check_game_status():
-            current_player = self.players[self.current_player_index]
-            current_player.player_action(self.round_manager, self)
-            self.switch_turn()
-    
-    def generate_loot_box(self):
-        return random.sample(list(self.loot_pool), 4)
-    
-    def switch_turn(self):
-        self.current_player_index = (self.current_player_index + 1) % len(self.players)
-
-    def check_game_status(self):
-        alive_players = [player for player in self.players if player.is_alive()]
-        if len(alive_players) == 1:
-            print(f"The game is over! {alive_players[0].name} is the winner!")
-            self.display_winner(alive_players[0])
-            return False
-        elif len(alive_players) == 0:
-            print("The game is over! No one survived.")
-            return False
-        return True
-
-    def handle_shoot(self, player):
-        pass
-
-    def display_winner(self):
-        pass
 
 if __name__ == "__main__":
     print(f"==================================================")
