@@ -14,7 +14,8 @@ class Player:
         self.name = name
         self.lives = 3
         self.items = []
-        self.active_items = []
+        self.double_damage = False
+        
     def player_action(self, shotgun, game_engine):
         while True: 
             actions = input(f"\n[{self.name}]: Enter 1 to use shotgun or enter 2 to use an item: ")
@@ -24,23 +25,18 @@ class Player:
                 answer =input("Shoot yourself or opponent?(Myself/Opponent)")
                 while True:
                     if answer == "Myself":
-                        if(shotgun.shells[0] == "live" and "knife" in self.active_items):
-                            self.lives -= 2
-                        elif(shotgun.shells[0] == "live" and "knife" not in self.active_items):
-                            self.lives -= 1
+                        shell_result = game_engine.handle_shoot(self)
+                        if shell_result == "blank":
+                            continue  #Keeps turn
                         else:
-                            print("Shell was a blank")
-                        break
+                            break
                     elif answer == "Opponent":
-                        if(shotgun.shells[0] == "live" and "knife" in self.active_items):
-                            self.lives -= 2
-                        elif(shotgun.shells[0] == "live" and "knife" not in self.active_items):
-                            self.lives -= 1
-                        else:
-                            print("Shell was a blank")
-                        break
+                        opponent = game_engine.get_opponent(self)
+                        if opponent:
+                            game_engine.handle_shoot(opponent)
                     else:
                         print("Please enter Myself or Opponent: ")
+                        break
                         
             #Item use
             elif actions == '2': 
@@ -118,7 +114,7 @@ class Player:
         elif(item.name == "knife"):
             print("================================================")
             print(f"{self.name} cuts the shotgun in half!")
-            #Work on this
+            self.double_damage = True
             print("================================================")
             self.items.remove(item)
             self.active_items.append("knife")
@@ -133,6 +129,14 @@ class Player:
         if self.lives > 0:
             return True
 
+    def lose_life(self, amount=1):
+        """Reduce the player's lives by the specified amount and print status."""
+        self.lives -= amount
+        if self.lives > 0:
+            print(f"{self.name} has {self.lives} lives left.")
+        else:
+            print(f"{self.name} has lost all lives and is out of the game!")
+    
     def __str__(self):
         return self.name
 
@@ -264,9 +268,27 @@ class GameEngine:
             print("The game is over! No one survived.")
             return False
         return True
+    
+    def get_opponent(self, current_player):
+        for player in self.players:
+            if player != current_player and player.is_alive():
+                return player
 
     def handle_shoot(self, player):
-        pass
+        if self.round_manager.shells:
+            current_shell = self.round_manager.shells.pop(0)
+            print(f"{player.name} shoots with the shell: [{current_shell}]")
+            if current_shell == "live":
+                print(f"{player.name} has shot with a live shell!")
+                
+                damage = 2 if player.double_damage_active else 1
+                player.double_damage_active = False
+                
+                player.lose_life(damage)
+            else:
+                print(f"{player.name} is safe with a blank shell.")
+        else:
+            print("No more shells in the shotgun.")
 
     def display_winner(self):
         pass
