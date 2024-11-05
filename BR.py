@@ -31,7 +31,8 @@ class Player:
                         print("You shot a blank. You keep your turn.")
                         continue  #Keeps the turn
                     else:
-                        print(f"You shot a live round. The turn switches to next {self.name}.")
+                        next_player = game_engine.players[(game_engine.current_player_index + 1) % len(game_engine.players)]
+                        print(f"You shot yourself! The turn switches to {next_player.name}.")
                 elif answer == "Opponent":
                     opponent = game_engine.get_opponent(self)
                     if opponent:
@@ -354,11 +355,30 @@ class GameEngine:
         print("|" + " " * (table_width - 2) + "|")
         print("-" * table_width)
 
+
 if __name__ == "__main__":
-    print(f"==================================================")
-    difficulty = input("Choose a difficulty (easy/hard): ")
-    print(f"==================================================")
-    ai_mode = input("Do you want to play against the computer? (yes/no): ") == 'yes'
-    print(f"==================================================")
-    game = GameEngine(difficulty, ai_mode)
-    game.start_game()
+    while True:
+        print(f"==================================================")
+        difficulty = input("Choose a difficulty (easy/hard): ").strip().lower()
+        if difficulty not in ["easy", "hard"]:
+            print(f"Invalid Response. Please answer: easy/hard")
+            continue  # Ask for difficulty again if input is invalid
+        
+        print(f"==================================================")
+        
+        # Separate loop for ai_mode input
+        while True:
+            ai_mode_input = input("Do you want to play against the computer? (yes/no): ").strip().lower()
+            if ai_mode_input not in ["yes", "no"]:
+                print(f"Invalid Response. Please answer: yes/no")
+                print(f"==================================================")
+                continue
+            ai_mode = ai_mode_input == 'yes'
+            break  # Exit the loop once valid input is provided
+        
+        print(f"==================================================")
+        
+        # Start the game after valid inputs are received
+        game = GameEngine(difficulty, ai_mode)
+        game.start_game()
+        break
