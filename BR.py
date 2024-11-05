@@ -45,11 +45,12 @@ class Player:
                             chosen_item = item
                             break
                     if chosen_item:
-                        print(f"\nChosen item: {chosen_item}\n")
+                        print("======================================")
+                        print(f"Chosen item: {chosen_item}\n")
                             
                         # Describe what the item does
                         if chosen_item.name == "magnifying glass":
-                            print("Description => This item reveals the first shell in the shotgun.")
+                            print("Description => This item reveals the current shell in the shotgun.")
                         elif chosen_item.name == "pill":
                             print("Description => This item heals one life.")
                         elif chosen_item.name == "knife":
@@ -62,6 +63,7 @@ class Player:
                             print("Description => This item ejects the current shell.")
                         
                         # Ask for confirmation to use the item
+                        print("======================================")
                         confirm = input("Do you want to use this item? (yes or no): ").strip().lower()
                         if confirm == 'yes':
                             sleep(1)
@@ -76,16 +78,29 @@ class Player:
     def use_item(self, item, shotgun):
         if(item.name == "magnifying glass"):
             print("======================================")
-            print(f"{self.name} used magnifying glass")
+            print(f"{self.name} used magnifying glass.")
             shotgun.reveal_shell = True
             print(f"Current shell is: {shotgun.shells[0]}")
             print("======================================")
             self.items.remove(item)
             
         elif(item.name == "pill"):
-            pass
+            print("======================================")
+            print(f"{self.name} used a pill.")
+            if self.lives < 3:
+                self.lives += 1
+                print(f"{self.name} has regained one life.")
+            else:
+                print(f"{self.name} is already at full health. What a waste!")
+            print("======================================")
+            self.items.remove(item)
+            
         elif(item.name == "knife"):
-            pass
+            print("======================================")
+            print(f"{self.name} cuts the shotgun in half!")
+            ####
+            print("======================================")
+            self.items.remove(item)
         elif(item.name == "handcuff"):
             pass
         elif(item.name == "inverter"):
@@ -93,11 +108,9 @@ class Player:
         elif(item.name == "beer"):
             pass
 
-    def lose_life(self, amount=1):
-        pass
-
     def is_alive(self):
-        pass
+        if self.lives > 0:
+            return True
 
     def __str__(self):
         return self.name
@@ -150,26 +163,12 @@ class RoundManager:
     def get_next_shell(self):
         #After shooting, pop current shell from self.shells
         self.shells.pop(0)
-
-# TurnManager class for managing player turns
-class TurnManager:
-    def __init__(self, players):
-        self.players = players
-        self.current_player_index = 0
-
-    def get_current_player(self):
-        return self.players[self.current_player_index]
-
-    def switch_turn(self):
-        pass
     
-
 # Main GameEngine class
 class GameEngine:
     def __init__(self, difficulty, ai_mode):
         self.difficulty = difficulty
         self.players = self.create_players(ai_mode)
-        self.turn_manager = TurnManager(self.players)
         self.round_manager = RoundManager()
         self.loot_pool = [
             Item('magnifying glass', 'reveal'),
@@ -179,6 +178,7 @@ class GameEngine:
             Item('inverter', 'switch_shells'),
             Item('beer', 'eject_shell')
         ]
+        self.current_player_index = 0
 
     def create_players(self, ai_mode):
         player1_name = input("Enter name for Player 1: ")
@@ -266,6 +266,7 @@ class GameEngine:
         
         #Determines the player that goes first        
         go_first = random.choice(self.players)
+        self.current_player_index = self.players.index(go_first)
         sleep(1)
         print(f"{go_first} goes first!")
         print(f"=========================================")
@@ -274,14 +275,28 @@ class GameEngine:
         self.display_table()
         
         #Game loop
-        current_player = go_first
-        action = current_player.player_action(self.round_manager, self)
+        while self.check_game_status():
+            current_player = self.players[self.current_player_index]
+            print(f"Current player: {current_player.name}")
+            current_player.player_action(self.round_manager, self)
+            self.switch_turn()
     
     def generate_loot_box(self):
         return random.sample(list(self.loot_pool), 4)
+    
+    def switch_turn(self):
+        self.current_player_index = (self.current_player_index + 1) % len(self.players)
 
     def check_game_status(self):
-        pass
+        alive_players = [player for player in self.players if player.is_alive()]
+        if len(alive_players) == 1:
+            print(f"The game is over! {alive_players[0].name} is the winner!")
+            self.display_winner(alive_players[0])
+            return False
+        elif len(alive_players) == 0:
+            print("The game is over! No one survived.")
+            return False
+        return True
 
     def handle_shoot(self, player):
         pass
