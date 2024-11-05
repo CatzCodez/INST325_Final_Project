@@ -7,12 +7,12 @@ class Player:
         self.name = name
         self.lives = 3
         self.items = []
-    def player_action(self, player):
+    def player_action(self):
         while True: 
-            actions = input("Enter 1 to use shotgun or enter 2 to use an item")
+            actions = input("Enter 1 to use shotgun or enter 2 to use an item:")
             if actions ==1: 
                 answer =input("Shoot yourself or opponent?(Myself/Opponent)")
-            elif actions == 2: 
+            elif actions == '2': 
                 if not self.items:
                     print(f"{self.name}, You have no items to use")
                     continue
@@ -21,6 +21,8 @@ class Player:
                 for item in self.items:
                     print(f"{counter}. [{item.name}]")
                     counter +=1
+                exit()
+                
                 #answer = input("Which item would you like to use?")
                 
                 print(self.items.name)
@@ -149,14 +151,15 @@ class GameEngine:
                 player.items.extend(loot_box)
         
         #Determines the player that goes first        
-        go_first = random.choice(self.players).name
-        sleep(2)
+        go_first = random.choice(self.players)
+        sleep(1)
         print(f"{go_first} goes first!")
         print(f"=========================================")
         
         #Game loop
-        current_player = self.turn_manager.get_current_player
+        current_player = go_first
         action = current_player.player_action()
+
     
     def generate_loot_box(self):
         return random.sample(list(self.loot_pool), 4)
@@ -164,7 +167,7 @@ class GameEngine:
     def display_starting_shells(self):
         pass
 
-    def check_game_status(self):
+    def check_game_status(self): 
         pass
 
     def handle_shoot(self, player):
