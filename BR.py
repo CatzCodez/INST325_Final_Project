@@ -14,6 +14,7 @@ class Player:
         self.name = name
         self.lives = 3
         self.items = []
+        self.active_items = []
     def player_action(self, shotgun, game_engine):
         while True: 
             actions = input(f"\n[{self.name}]: Enter 1 to use shotgun or enter 2 to use an item: ")
@@ -23,11 +24,23 @@ class Player:
                 answer =input("Shoot yourself or opponent?(Myself/Opponent)")
                 while True:
                     if answer == "Myself":
+                        if(shotgun.shells[0] == "live" and "knife" in self.active_items):
+                            self.lives -= 2
+                        elif(shotgun.shells[0] == "live" and "knife" not in self.active_items):
+                            self.lives -= 1
+                        else:
+                            print("Shell was a blank")
                         break
                     elif answer == "Opponent":
+                        if(shotgun.shells[0] == "live" and "knife" in self.active_items):
+                            self.lives -= 2
+                        elif(shotgun.shells[0] == "live" and "knife" not in self.active_items):
+                            self.lives -= 1
+                        else:
+                            print("Shell was a blank")
                         break
                     else:
-                        print("Please enter Myself or Opponent ")
+                        print("Please enter Myself or Opponent: ")
                         
             #Item use
             elif actions == '2': 
@@ -100,6 +113,7 @@ class Player:
                 print(f"{self.name} is already at full health. What a waste!")
             print("================================================")
             self.items.remove(item)
+            self.active_items.append("pill")
             
         elif(item.name == "knife"):
             print("================================================")
@@ -107,6 +121,7 @@ class Player:
             #Work on this
             print("================================================")
             self.items.remove(item)
+            self.active_items.append("knife")
         elif(item.name == "handcuff"):
             pass
         elif(item.name == "inverter"):
