@@ -7,25 +7,58 @@ class Player:
         self.name = name
         self.lives = 3
         self.items = []
-    def player_action(self):
+    def player_action(self, shells):
         while True: 
             actions = input("Enter 1 to use shotgun or enter 2 to use an item: ")
             if actions == '1': 
                 answer =input("Shoot yourself or opponent?(Myself/Opponent)")
+                while True:
+                    if answer == "Myself":
+                        
+                        break
+                    elif answer == "Opponent":
+                        break
+                    else:
+                        print("Please enter Myself or Opponent ")
+                
             elif actions == '2': 
                 if not self.items:
                     print(f"{self.name}, You have no items to use")
                     continue
-                print('These are your available items:')
-                counter = 1
-                for item in self.items:
-                    print(f"{counter}. [{item.name}]")
-                    counter +=1
-                exit()
-                          
+                while True:
+                    print('These are your available items:')
+                    counter = 1
+                    for item in self.items:
+                        print(f"{counter}. [{item.name}]")
+                        counter +=1
+                    item_chosen = input("Choose item or type 'back' to go back: ")
+                    chosen_item = None
+                    if item_chosen == "back":
+                        break
+                    for item in self.items:
+                        if item.name == item_chosen:
+                            chosen_item = item
+                            break
+                    if chosen_item:
+                        print(f"Chosen item: {chosen_item}")
+                        self.use_item(chosen_item , RoundManager)
+                        break
+                        
 
-    def use_item(self, item):
-        pass
+    def use_item(self, item, roundManager):
+        if(item.name == "magnifying glass"):
+            print(f"{self.name} used magnifying glass")
+            print(f"{roundManager.shells[0]}")
+        elif(item.name == "pill"):
+            pass
+        elif(item.name == "knife"):
+            pass
+        elif(item.name == "handcuff"):
+            pass
+        elif(item.name == "inverter"):
+            pass
+        elif(item.name == "beer"):
+            pass
 
     def lose_life(self, amount=1):
         pass
@@ -52,6 +85,9 @@ class Item:
 
     def apply_effect(self, player):
         pass
+    
+    def __str__(self):
+        return f"{self.name}"
 
 # RoundManager class for managing game rounds
 class RoundManager:
@@ -61,7 +97,6 @@ class RoundManager:
     def __init__(self):
         #Make a list of shells, start with one live round
         self.shells = ["live"]
-
     def setup_shells(self, difficulty):
         #List with two types of rounds
         rounds = ["live", "blank", "blank", "blank"]
@@ -151,13 +186,8 @@ class GameEngine:
 
         #Display shotgun shells in between the tables
         print("\nShotgun Shells:")
-        shells_display = []  #Create an empty list to store the shell display strings
-        for i in range(len(self.round_manager.shells)):
-            shell = self.round_manager.shells[i]  #Access the shell at the current index
-            if i == 0:  #Display the first shell
-                shells_display.append(f"[{shell}]")
-            else:
-                shells_display.append("[?]")
+        shells_display = ["[?]" for i in self.round_manager.shells]  #Create an empty list to store the shell display strings
+        
 
         #Join the elements with " | " as a separator and print
         print(" | ".join(shells_display))
@@ -204,8 +234,7 @@ class GameEngine:
         
         #Game loop
         current_player = go_first
-        action = current_player.player_action()
-        print(f"Action chosen: {action}")
+        action = current_player.player_action(RoundManager)
     
     def generate_loot_box(self):
         return random.sample(list(self.loot_pool), 4)
