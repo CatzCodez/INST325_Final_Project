@@ -12,11 +12,12 @@ def loading_bar(duration, length=30):
 class Player:
     def __init__(self, name):
         self.name = name
-        self.lives = 3
+        self.lives = 1
         self.items = []
         self.double_damage = False
         
     def player_action(self, shotgun, game_engine):
+        next_player = game_engine.players[(game_engine.current_player_index + 1) % len(game_engine.players)]
         while True: 
             actions = input(f"\n[{self.name}]: Enter 1 to use shotgun or enter 2 to use an item: ")
             print("==================================================")
@@ -25,18 +26,21 @@ class Player:
                 answer = input("Shoot yourself or opponent?(Myself/Opponent): ")
                 print("==================================================")
                 if answer == "Myself":
-                    shell_result = game_engine.handle_shoot(self)
+                    shell_result = game_engine.handle_shoot(self, self)
                     if shell_result == "blank":
                         # Player should not keep shooting infinitely if they get a blank.
                         print("You shot a blank. You keep your turn.")
+                        print("==================================================")
                         continue  #Keeps the turn
                     else:
-                        next_player = game_engine.players[(game_engine.current_player_index + 1) % len(game_engine.players)]
                         print(f"You shot yourself! The turn switches to {next_player.name}.")
                 elif answer == "Opponent":
                     opponent = game_engine.get_opponent(self)
                     if opponent:
-                        game_engine.handle_shoot(opponent)
+                        game_engine.handle_shoot(self, opponent)
+                        if not opponent.is_alive():
+                            break #Skip the "Switching to next turn" message if the opponent is out of the game.
+                        print(f"Switching to {next_player.name}'s turn.")
                     break
                 else:
                     print("Invalid input. Please enter 'Myself' or 'Opponent'.")
@@ -277,26 +281,25 @@ class GameEngine:
             if player != current_player and player.is_alive():
                 return player
 
-    def handle_shoot(self, player):
+    def handle_shoot(self, current_player, opponent_player):
         if not self.round_manager.shells:
             print("No more shells in the shotgun.")
             return "empty"  # Indicate the shotgun is empty
 
         # Get and remove the first shell from the list
         current_shell = self.round_manager.shells.pop(0)
-        print(f"{player.name} shoots with the shell: [{current_shell}]")
+        print(f"{current_player.name} shoots with the shell: [{current_shell}]")
 
         if current_shell == "live":
-            print(f"{player.name} has shot with a live shell!")
+            print(f"{current_player.name} has shot with a live shell!")
             
             # Apply double damage if the effect is active
-            damage = 2 if player.double_damage else 1
-            player.lose_life(damage)
-            player.double_damage = False  # Reset the double damage effect after use
-            
+            damage = 2 if opponent_player.double_damage else 1
+            opponent_player.lose_life(damage)
+            opponent_player.double_damage = False  # Reset the double damage effect after use
             return "live"
         else:
-            print(f"{player.name} is safe with a blank shell.")
+            print(f"{opponent_player.name} is safe with a blank shell.")
             return "blank"
         
     def display_winner(self):
