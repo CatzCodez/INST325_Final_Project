@@ -14,7 +14,6 @@ class Player:
                 answer =input("Shoot yourself or opponent?(Myself/Opponent)")
                 while True:
                     if answer == "Myself":
-                        
                         break
                     elif answer == "Opponent":
                         break
@@ -40,7 +39,7 @@ class Player:
                             chosen_item = item
                             break
                     if chosen_item:
-                        print(f"Chosen item: {chosen_item}")
+                        print(f"Chosen item: {chosen_item}\n")
                         self.use_item(chosen_item , shotgun)
                         break
                         
@@ -48,7 +47,7 @@ class Player:
     def use_item(self, item, shotgun):
         if(item.name == "magnifying glass"):
             print(f"{self.name} used magnifying glass")
-            print(f"{shotgun.shells[0]}")
+            print(f"Current shell is: {shotgun.shells[0]}\n")
         elif(item.name == "pill"):
             pass
         elif(item.name == "knife"):
