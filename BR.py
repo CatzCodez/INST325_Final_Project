@@ -7,9 +7,11 @@ class Player:
         self.name = name
         self.lives = 3
         self.items = []
-    def player_action(self, shotgun):
+    def player_action(self, shotgun, game_engine):
         while True: 
             actions = input("Enter 1 to use shotgun or enter 2 to use an item: ")
+            
+            #Shotgun use
             if actions == '1': 
                 answer =input("Shoot yourself or opponent?(Myself/Opponent)")
                 while True:
@@ -19,7 +21,8 @@ class Player:
                         break
                     else:
                         print("Please enter Myself or Opponent ")
-                
+                        
+            #Item use
             elif actions == '2': 
                 if not self.items:
                     print(f"{self.name}, You have no items to use")
@@ -40,14 +43,22 @@ class Player:
                             break
                     if chosen_item:
                         print(f"Chosen item: {chosen_item}\n")
-                        self.use_item(chosen_item , shotgun)
+                        sleep(1)
+                        self.use_item(chosen_item, shotgun)
+                        sleep(1)
+                        game_engine.display_table()
                         break
                         
 
     def use_item(self, item, shotgun):
         if(item.name == "magnifying glass"):
+            print("======================================")
             print(f"{self.name} used magnifying glass")
-            print(f"Current shell is: {shotgun.shells[0]}\n")
+            shotgun.reveal_shell = True
+            print(f"Current shell is: {shotgun.shells[0]}")
+            print("======================================")
+            self.items.remove(item)
+            
         elif(item.name == "pill"):
             pass
         elif(item.name == "knife"):
@@ -96,6 +107,8 @@ class RoundManager:
     def __init__(self):
         #Make a list of shells, start with one live round
         self.shells = ["live"]
+        self.reveal_shell = False
+        
     def setup_shells(self, difficulty):
         #List with two types of rounds
         rounds = ["live", "blank", "blank", "blank"]
@@ -185,7 +198,13 @@ class GameEngine:
 
         #Display shotgun shells in between the tables
         print("\nShotgun Shells:")
-        shells_display = ["[?]" for i in self.round_manager.shells]  #Create an empty list to store the shell display strings
+        shells_display = []
+        for i in range(len(self.round_manager.shells)):
+            if i == 0 and self.round_manager.reveal_shell:
+                # Reveal the first shell
+                shells_display.append(f"[{self.round_manager.shells[i]}]")
+            else:
+                shells_display.append("[?]")
         
 
         #Join the elements with " | " as a separator and print
@@ -233,7 +252,7 @@ class GameEngine:
         
         #Game loop
         current_player = go_first
-        action = current_player.player_action(self.round_manager)
+        action = current_player.player_action(self.round_manager, self)
     
     def generate_loot_box(self):
         return random.sample(list(self.loot_pool), 4)
