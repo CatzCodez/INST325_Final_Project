@@ -6,7 +6,7 @@ def loading_bar(duration, length=30):
     for i in range(length):
         sleep(duration / length)
         print(f"\rLoading table:[{'#' * (i + 1)}{'.' * (length - i - 1)}]", end='', flush=True)
-    print("\nLoading complete!\n=========================================")
+    print("\nLoading complete!\n==================================================")
 
 # Base class for players
 class Player:
@@ -19,24 +19,27 @@ class Player:
     def player_action(self, shotgun, game_engine):
         while True: 
             actions = input(f"\n[{self.name}]: Enter 1 to use shotgun or enter 2 to use an item: ")
-            
+            print("==================================================")
             #Shotgun use
             if actions == '1': 
-                answer =input("Shoot yourself or opponent?(Myself/Opponent)")
-                while True:
-                    if answer == "Myself":
-                        shell_result = game_engine.handle_shoot(self)
-                        if shell_result == "blank":
-                            continue  #Keeps turn
-                        else:
-                            break
-                    elif answer == "Opponent":
-                        opponent = game_engine.get_opponent(self)
-                        if opponent:
-                            game_engine.handle_shoot(opponent)
+                answer = input("Shoot yourself or opponent?(Myself/Opponent): ")
+                print("==================================================")
+                if answer == "Myself":
+                    shell_result = game_engine.handle_shoot(self)
+                    if shell_result == "blank":
+                        # Player should not keep shooting infinitely if they get a blank.
+                        print("You shot a blank. You keep your turn.")
+                        continue  #Keeps the turn
                     else:
-                        print("Please enter Myself or Opponent: ")
-                        break
+                        print(f"You shot a live round. The turn switches to next {self.name}.")
+                elif answer == "Opponent":
+                    opponent = game_engine.get_opponent(self)
+                    if opponent:
+                        game_engine.handle_shoot(opponent)
+                    break
+                else:
+                    print("Invalid input. Please enter 'Myself' or 'Opponent'.")
+                    continue
                         
             #Item use
             elif actions == '2': 
@@ -109,7 +112,6 @@ class Player:
                 print(f"{self.name} is already at full health. What a waste!")
             print("================================================")
             self.items.remove(item)
-            self.active_items.append("pill")
             
         elif(item.name == "knife"):
             print("================================================")
@@ -117,7 +119,7 @@ class Player:
             self.double_damage = True
             print("================================================")
             self.items.remove(item)
-            self.active_items.append("knife")
+    
         elif(item.name == "handcuff"):
             pass
         elif(item.name == "inverter"):
@@ -220,20 +222,20 @@ class GameEngine:
     def start_game(self):
         print(f"You are playing on [{self.difficulty} mode]")
         _ = input("Press enter to see the shotgun shells: ")
-        print(f"=========================================")
+        print(f"==================================================")
         print("Here are the shells in the shotgun")
         self.round_manager.setup_shells(self.difficulty) #get shell sequence
         
         #Generating and displaying lootbox
         if self.difficulty == "hard":
             _ = input("Press enter to get loot.")
-            print(f"=========================================")
+            print(f"==================================================")
             for player in self.players:
                 loot_box = self.generate_loot_box() 
                 print(f"These are [{player.name}] loot box items: ")
                 for item in loot_box:
                     print(f"[{item.name}]")
-                print(f"=========================================")
+                print(f"==================================================")
                 player.items.extend(loot_box)
         
         #Determines the player that goes first        
@@ -275,21 +277,27 @@ class GameEngine:
                 return player
 
     def handle_shoot(self, player):
-        if self.round_manager.shells:
-            current_shell = self.round_manager.shells.pop(0)
-            print(f"{player.name} shoots with the shell: [{current_shell}]")
-            if current_shell == "live":
-                print(f"{player.name} has shot with a live shell!")
-                
-                damage = 2 if player.double_damage_active else 1
-                player.double_damage_active = False
-                
-                player.lose_life(damage)
-            else:
-                print(f"{player.name} is safe with a blank shell.")
-        else:
+        if not self.round_manager.shells:
             print("No more shells in the shotgun.")
+            return "empty"  # Indicate the shotgun is empty
 
+        # Get and remove the first shell from the list
+        current_shell = self.round_manager.shells.pop(0)
+        print(f"{player.name} shoots with the shell: [{current_shell}]")
+
+        if current_shell == "live":
+            print(f"{player.name} has shot with a live shell!")
+            
+            # Apply double damage if the effect is active
+            damage = 2 if player.double_damage else 1
+            player.lose_life(damage)
+            player.double_damage = False  # Reset the double damage effect after use
+            
+            return "live"
+        else:
+            print(f"{player.name} is safe with a blank shell.")
+            return "blank"
+        
     def display_winner(self):
         pass
     
