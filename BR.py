@@ -176,6 +176,7 @@ class GameEngine:
         print(f"{go_first} goes first!")
         print(f"=========================================")
         
+        sleep(1)
         self.display_table()
         
         #Game loop
