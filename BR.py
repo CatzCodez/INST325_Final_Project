@@ -7,12 +7,12 @@ class Player:
         self.name = name
         self.lives = 3
         self.items = []
-    def player_action(self, player):
+    def player_action(self):
         while True: 
-            actions = input("Enter 1 to use shotgun or enter 2 to use an item")
-            if actions ==1: 
+            actions = input("Enter 1 to use shotgun or enter 2 to use an item: ")
+            if actions == '1': 
                 answer =input("Shoot yourself or opponent?(Myself/Opponent)")
-            elif actions == 2: 
+            elif actions == '2': 
                 if not self.items:
                     print(f"{self.name}, You have no items to use")
                     continue
@@ -21,9 +21,7 @@ class Player:
                 for item in self.items:
                     print(f"{counter}. [{item.name}]")
                     counter +=1
-                #answer = input("Which item would you like to use?")
-                
-                print(self.items.name)
+                exit()
                           
 
     def use_item(self, item):
@@ -125,7 +123,33 @@ class GameEngine:
         return [player1, player2]
 
     def display_table(self):
-        pass
+        print("\n" + "-" * 20 + f" {self.players[1].name} " + "-" * 20)
+        print("|" + " " * 48 + "|")
+        print("|" + f" Lives: {self.players[1].lives}".ljust(48) + "|")
+        print("|" + f" Items: {', '.join([item.name for item in self.players[1].items]) if self.players[1].items else 'None'}".ljust(48) + "|")
+        print("|" + " " * 48 + "|")
+        print("-" * 50)
+        
+        print("Shotgun Shells:")
+        shells_display = []  # Create an empty list to store the shell display strings
+
+        # Loop through the indices using range(len())
+        for i in range(len(self.round_manager.shells)):
+            shell = self.round_manager.shells[i]  # Access the shell at the current index
+            if i == 0:  # Display the first shell
+                shells_display.append(f"[{shell}]")
+            else:
+                shells_display.append("[?]")
+
+        # Join the elements with " | " as a separator and print
+        print(" | ".join(shells_display))
+
+        print("-" * 20 + f" {self.players[0].name} " + "-" * 20)
+        print("|" + " " * 48 + "|")
+        print("|" + f" Lives: {self.players[0].lives}".ljust(48) + "|")
+        print("|" + f" Items: {', '.join([item.name for item in self.players[0].items]) if self.players[0].items else 'None'}".ljust(48) + "|")
+        print("|" + " " * 48 + "|")
+        print("-" * 50)
     
     def start_game(self):
         print(f"You are playing on [{self.difficulty} mode]")
@@ -133,8 +157,6 @@ class GameEngine:
         print(f"=========================================")
         print("Here are the shells in the shotgun")
         self.round_manager.setup_shells(self.difficulty) #get shell sequence
-        
-        self.display_table()
         
         #Generating and displaying lootbox
         if self.difficulty == "hard":
@@ -149,20 +171,20 @@ class GameEngine:
                 player.items.extend(loot_box)
         
         #Determines the player that goes first        
-        go_first = random.choice(self.players).name
-        sleep(2)
+        go_first = random.choice(self.players)
+        sleep(1)
         print(f"{go_first} goes first!")
         print(f"=========================================")
         
+        self.display_table()
+        
         #Game loop
-        current_player = self.turn_manager.get_current_player
+        current_player = go_first
         action = current_player.player_action()
+        print(f"Action chosen: {action}")
     
     def generate_loot_box(self):
         return random.sample(list(self.loot_pool), 4)
-
-    def display_starting_shells(self):
-        pass
 
     def check_game_status(self):
         pass
