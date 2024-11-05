@@ -1,6 +1,7 @@
 import random
 from time import sleep
 
+
 # Base class for players
 class Player:
     def __init__(self, name):
@@ -9,7 +10,7 @@ class Player:
         self.items = []
     def player_action(self, shotgun, game_engine):
         while True: 
-            actions = input("Enter 1 to use shotgun or enter 2 to use an item: ")
+            actions = input(f"[{self.name}]: Enter 1 to use shotgun or enter 2 to use an item: ")
             
             #Shotgun use
             if actions == '1': 
@@ -37,17 +38,39 @@ class Player:
                     chosen_item = None
                     if item_chosen == "back":
                         break
+                    
+                    #If an actual item is chosen
                     for item in self.items:
                         if item.name == item_chosen:
                             chosen_item = item
                             break
                     if chosen_item:
-                        print(f"Chosen item: {chosen_item}\n")
-                        sleep(1)
-                        self.use_item(chosen_item, shotgun)
-                        sleep(1)
-                        game_engine.display_table()
-                        break
+                        print(f"\nChosen item: {chosen_item}\n")
+                            
+                        # Describe what the item does
+                        if chosen_item.name == "magnifying glass":
+                            print("Description => This item reveals the first shell in the shotgun.")
+                        elif chosen_item.name == "pill":
+                            print("Description => This item heals one life.")
+                        elif chosen_item.name == "knife":
+                            print("Description => This item allows you to deal double damage.")
+                        elif chosen_item.name == "handcuff":
+                            print("Description => This item stuns your opponent.")
+                        elif chosen_item.name == "inverter":
+                            print("Description => This item switches the order of the shells.")
+                        elif chosen_item.name == "beer":
+                            print("Description => This item ejects the current shell.")
+                        
+                        # Ask for confirmation to use the item
+                        confirm = input("Do you want to use this item? (yes or no): ").strip().lower()
+                        if confirm == 'yes':
+                            sleep(1)
+                            self.use_item(chosen_item, shotgun)
+                            sleep(1)
+                            game_engine.display_table()
+                            break
+                        else:
+                            print("Item not used. Returning to item selection.")
                         
 
     def use_item(self, item, shotgun):
