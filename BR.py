@@ -28,12 +28,12 @@ class Player:
                 if answer == "myself":
                     shell_result = game_engine.handle_shoot(self, self)
                     if shell_result == "blank":
-                        # Player should not keep shooting infinitely if they get a blank.
-                        print("You shot a blank. You keep your turn.")
+                        print(f"{self.name} shot a blank. {self.name} keeps their turn.")
                         print("==================================================")
-                        continue  #Keeps the turn
+                        continue
                     else:
                         print(f"You shot yourself! The turn switches to {next_player.name}.")
+                        break
                 elif answer == "opponent":
                     opponent = game_engine.get_opponent(self)
                     if opponent:
@@ -72,6 +72,7 @@ class Player:
                     else:
                         print("================================================")
                         print("Invalid input. Please enter: Corresponding item #, or item name")
+                        print("==================================================")
                     if chosen_item:
                         print("================================================")
                         print(f"Chosen item: {chosen_item}\n")
@@ -272,7 +273,9 @@ class GameEngine:
         return random.sample(list(self.loot_pool), 4)
     
     def switch_turn(self):
+        print(self.current_player_index)
         self.current_player_index = (self.current_player_index + 1) % len(self.players)
+        print(self.current_player_index)
 
     def check_game_status(self):
         alive_players = [player for player in self.players if player.is_alive()]
@@ -299,6 +302,7 @@ class GameEngine:
         current_shell = self.round_manager.shells.pop(0)
         if self.round_manager.reveal_shell:
             self.round_manager.reveal_shell = False
+            
         print(f"{current_player.name} shoots with the shell: [{current_shell}]")
 
         if current_shell == "live":
