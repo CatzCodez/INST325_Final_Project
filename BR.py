@@ -1,6 +1,5 @@
 import random
 from time import sleep
-import keyboard
 
 def loading_bar(duration, length=30):
     """Simulate a loading bar in the console with a 'Complete!' message."""
@@ -26,7 +25,7 @@ class Player:
             if actions == '1': 
                 answer = input("Shoot yourself or opponent? (Myself/Opponent): ").strip().lower()
                 print("==================================================")
-                if answer == "Myself":
+                if answer == "myself":
                     shell_result = game_engine.handle_shoot(self, self)
                     if shell_result == "blank":
                         # Player should not keep shooting infinitely if they get a blank.
@@ -35,7 +34,7 @@ class Player:
                         continue  #Keeps the turn
                     else:
                         print(f"You shot yourself! The turn switches to {next_player.name}.")
-                elif answer == "Opponent":
+                elif answer == "opponent":
                     opponent = game_engine.get_opponent(self)
                     if opponent:
                         game_engine.handle_shoot(self, opponent)
