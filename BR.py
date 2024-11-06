@@ -1,5 +1,6 @@
 import random
 from time import sleep
+import keyboard
 
 def loading_bar(duration, length=30):
     """Simulate a loading bar in the console with a 'Complete!' message."""
@@ -234,14 +235,14 @@ class GameEngine:
     
     def start_game(self):
         print(f"You are playing on [{self.difficulty} mode]")
-        _ = input("Press ANY KEY to see the shotgun shells: ")
+        _ = input("Press [ENTER] to see the shotgun shells: ")
         print(f"==================================================")
         print("Here are the shells in the shotgun")
         self.round_manager.setup_shells(self.difficulty) #get shell sequence
         
         #Generating and displaying lootbox
         if self.difficulty == "hard":
-            _ = input("Press ANY KEY to get loot.")
+            _ = input("Press [ENTER] to see get your lootbox: ")
             print(f"==================================================")
             for player in self.players:
                 loot_box = self.generate_loot_box() 
