@@ -42,6 +42,7 @@ class Player:
                             break #Skip the "Switching to next turn" message if the opponent is out of the game.
                         print(f"Switching to {next_player.name}'s turn.")
                         sleep(2)
+                        print("==================================================")
                         game_engine.display_table()
                     break
                 else:
@@ -296,6 +297,8 @@ class GameEngine:
 
         # Get and remove the first shell from the list
         current_shell = self.round_manager.shells.pop(0)
+        if self.round_manager.reveal_shell:
+            self.round_manager.reveal_shell = False
         print(f"{current_player.name} shoots with the shell: [{current_shell}]")
 
         if current_shell == "live":
