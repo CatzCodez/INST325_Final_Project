@@ -136,11 +136,24 @@ class Player:
             self.items.remove(item)
     
         elif(item.name == "handcuff"):
-            pass
+            print("================================================")
+            
+            print("================================================")
+            self.items.remove(item)
         elif(item.name == "inverter"):
-            pass
+            print("================================================")
+            print(f"{self.name} used an inverter")
+            shotgun.shells[0] = "live" if shotgun.shells[0] == "blank" else "blank"
+            print(f"Current shell is now {shotgun.shells[0]}")
+            print("================================================")
+            self.items.remove(item)
         elif(item.name == "beer"):
-            pass
+            print("================================================")
+            print(f"{self.name} used beer")
+            shotgun.shells.pop(0)
+            print(f"The current shotgun shell has been removed")
+            print("================================================")
+            self.items.remove(item)
 
     def is_alive(self):
         if self.lives > 0:
