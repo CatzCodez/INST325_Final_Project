@@ -96,7 +96,7 @@ class Player:
                         confirm = input("Do you want to use this item? (yes or no): ").strip().lower()
                         if confirm == 'yes':
                             sleep(1)
-                            self.use_item(chosen_item, shotgun)
+                            self.use_item(chosen_item, shotgun,game_engine)
                             sleep(1)
                             game_engine.display_table()
                             break
@@ -108,7 +108,8 @@ class Player:
                 print("Invalid input. Please enter: '1'/'2'")         
                 continue
 
-    def use_item(self, item, shotgun):
+    def use_item(self, item, shotgun,game_engine):
+        next_player = game_engine.players[(game_engine.current_player_index + 1) % len(game_engine.players)]
         if(item.name == "magnifying glass"):
             print("================================================")
             print(f"{self.name} used magnifying glass.")
@@ -137,7 +138,10 @@ class Player:
     
         elif(item.name == "handcuff"):
             print("================================================")
-            
+            print(f"{self.name} has used handcuff")
+            game_engine.switch_turn()
+            game_engine.switch_turn()
+            print(f"{next_player}'s turn has been skipped")
             print("================================================")
             self.items.remove(item)
         elif(item.name == "inverter"):
