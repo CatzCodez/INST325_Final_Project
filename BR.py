@@ -176,11 +176,52 @@ class Player:
 
 # AI player class
 class ComputerPlayer(Player):
-    def __init__(self, name="Computer"):
+    def __init__(self, name="Computer", difficulty = "easy"):
         super().__init__(name)
-
-    def decide_action(self, shells, difficulty, loot_box):
-        pass
+        self.difficulty = difficulty
+        
+    def player_action(self, shotgun, game_engine):
+        print(f"\n[{self.name}'s Turn]")
+       # difficulty = game_engine.difficulty
+        if difficulty == "hard":
+            self.decide_smart_action(shotgun, game_engine)
+        else: 
+            self.decide_mediocre_action(shotgun, game_engine)
+            
+    def decide_smart_action(self, shotgun, game_engine):
+        opponent = self.get_user_opponent(game_engine)
+        
+        computer_items = [item for item in self.items if item.name in {"magnifying glass", "knife", "handcuff", "inverter", "beer"}]
+        if computer_items: 
+            print(f"{self.name} chooses to use {computer_items[0].name}")
+            self.use_item(computer_items[0], shotgun, game_engine)
+            return
+        #If player has more than 1 live, Computer decides to shoot
+        if opponent and opponent.lives >=1:
+            print(f"{self.name} chooses to shoot {opponent.name}")
+            game_engine.handle_shoot(self, opponent)
+        #Goes into defensive mode as lives go down
+        elif self.lives <=3: 
+            defensive_items = [item for item in self.items if item.name in {"pill","handcuff"}]
+            #chooses to use defensive item
+            if defensive_items: 
+                self.use_item(defensive_items[0], shotgun, game_engine)
+            else: 
+                game_engine.handle_shoot(self,self)
+        else: 
+            self.player_shotgun(self,self)
+    #Current issue is when the computer uses an Item, it goes straight back to the players turn
+    #essentially skipping the computers turn every time they use an item, currently trying to work that out properly
+    def medicore_action(self, shotgun, game_engine):
+        game_engine.handle_shoot(self,self)
+    #gets the correct opponent for the COMPUTER, which is the user. Checks that user is not a Computer Player
+    def get_user_opponent(self,game_engine):
+        for player in game_engine.players:
+            if isinstance(player,Player) and not isinstance(player,ComputerPlayer):
+                return player
+        return game_engine.get_opponent(self)
+            
+        
 
 # Class for items with effects
 class Item:
