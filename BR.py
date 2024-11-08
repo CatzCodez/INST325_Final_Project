@@ -18,11 +18,25 @@ class Player:
         
     def player_action(self, shotgun, game_engine):
         next_player = game_engine.players[(game_engine.current_player_index + 1) % len(game_engine.players)]
-        while True: 
-            actions = input(f"\n[{self.name}]: Enter 1 to use shotgun or enter 2 to use an item: ")
-            print("==================================================")
+        while True:
+            if game_engine.round_manager.empty == False:
+                game_engine.display_table()
+                actions = input(f"\n[{self.name}]: Enter 1 to use shotgun or enter 2 to use an item: ")
+                print("==================================================")
+            else:
+                print("Empty shotgun, reloading...")
+                sleep(2)
+                _ = input("Press [ENTER] to see the shotgun shells: ")
+                print(f"==================================================")
+                print("Here are the shells in the shotgun")
+                game_engine.round_manager.setup_shells(game_engine.difficulty)
+                if game_engine.difficulty == "easy":
+                    sleep(3)
+                else:
+                    game_engine.generate_loot_box()
+                break
             #Shotgun use
-            if actions == '1': 
+            if actions == '1':
                 answer = input("Shoot yourself or opponent? (Myself/Opponent): ").strip().lower()
                 print("==================================================")
                 if answer == "myself":
@@ -30,9 +44,11 @@ class Player:
                     if shell_result == "blank":
                         print(f"{self.name} shot a blank. {self.name} keeps their turn.")
                         print("==================================================")
+                        sleep(2)
                         continue
                     else:
                         print(f"You shot yourself! The turn switches to {next_player.name}.")
+                        sleep(2)
                         break
                 elif answer == "opponent":
                     opponent = game_engine.get_opponent(self)
@@ -43,7 +59,7 @@ class Player:
                         print(f"Switching to {next_player.name}'s turn.")
                         sleep(2)
                         print("==================================================")
-                        game_engine.display_table()
+                        #game_engine.display_table()
                     break
                 else:
                     print("Invalid input. Please enter: 'Myself'/'Opponent'")
@@ -107,6 +123,7 @@ class Player:
             else:
                 print("Invalid input. Please enter: '1'/'2'")         
                 continue
+        
 
     def use_item(self, item, shotgun,game_engine):
         next_player = game_engine.players[(game_engine.current_player_index + 1) % len(game_engine.players)]
@@ -242,8 +259,8 @@ class RoundManager:
     """
     def __init__(self):
         #Make a list of shells, start with one live round
-        self.shells = ["live"]
         self.reveal_shell = False
+        self.empty = True
         
     def setup_shells(self, difficulty):
         #List with two types of rounds
@@ -251,18 +268,25 @@ class RoundManager:
 
         #Load certain amount of rounds to self.shells based on difficulty
         if difficulty == "easy":
+            self.shells = ["live"]
             for i in range(4):
                 self.shells.append(random.choice(rounds))
+                self.empty = False
         else:
+            self.shells = ["live"]
             for i in range(7):
                 self.shells.append(random.choice(rounds))
+                self.empty = False
         print(f"{self.shells}\n")
         #Reorder self.shells randomly
         random.shuffle(self.shells)
 
     def get_next_shell(self):
         #After shooting, pop current shell from self.shells
-        self.shells.pop(0)
+        shell = self.shells.pop(0)
+        if len(self.shells) == 0:
+            self.empty = True
+        return  shell
     
 # Main GameEngine class
 class GameEngine:
@@ -300,16 +324,7 @@ class GameEngine:
         self.round_manager.setup_shells(self.difficulty) #get shell sequence
         
         #Generating and displaying lootbox
-        if self.difficulty == "hard":
-            _ = input("Press [ENTER] to see get your lootbox: ")
-            print(f"==================================================")
-            for player in self.players:
-                loot_box = self.generate_loot_box() 
-                print(f"These are [{player.name}] loot box items: ")
-                for item in loot_box:
-                    print(f"[{item.name}]")
-                print(f"==================================================")
-                player.items.extend(loot_box)
+        self.generate_loot_box()
         
         #Determines the player that goes first        
         go_first = random.choice(self.players)
@@ -326,23 +341,30 @@ class GameEngine:
             current_player = self.players[self.current_player_index]
             current_player.player_action(self.round_manager, self)
             self.switch_turn()
-    
+
     def generate_loot_box(self):
-        return random.sample(list(self.loot_pool), 4)
+        if self.difficulty == "hard":
+            _ = input("Press [ENTER] to see get your lootbox: ")
+            print(f"==================================================")
+            for player in self.players:
+                num_items = 4 if len(player.items)<=4 else 8-len(player.items)
+                loot_box = random.sample(list(self.loot_pool), num_items) 
+                print(f"These are [{player.name}] loot box items: ")
+                for item in loot_box:
+                    print(f"[{item.name}]")
+                print(f"==================================================")
+                player.items.extend(loot_box)
     
     def switch_turn(self):
         print(self.current_player_index)
         self.current_player_index = (self.current_player_index + 1) % len(self.players)
         print(self.current_player_index)
 
-    def check_game_status(self):
+    def check_game_status(self): 
         alive_players = [player for player in self.players if player.is_alive()]
         if len(alive_players) == 1:
             print(f"The game is over! {alive_players[0].name} is the winner!")
             self.display_winner(alive_players[0])
-            return False
-        elif len(alive_players) == 0:
-            print("The game is over! No one survived.")
             return False
         return True
     
@@ -352,12 +374,8 @@ class GameEngine:
                 return player
 
     def handle_shoot(self, current_player, opponent_player):
-        if not self.round_manager.shells:
-            print("No more shells in the shotgun.")
-            return "empty"  # Indicate the shotgun is empty
-
         # Get and remove the first shell from the list
-        current_shell = self.round_manager.shells.pop(0)
+        current_shell = self.round_manager.get_next_shell()
         if self.round_manager.reveal_shell:
             self.round_manager.reveal_shell = False
             
