@@ -13,29 +13,18 @@ def loading_bar(duration, length=30):
 class Player:
     def __init__(self, name):
         self.name = name
-        self.lives = 1
+        self.lives = 3
         self.items = []
         self.double_damage = False
         
     def player_action(self, shotgun, game_engine):
         next_player = game_engine.players[(game_engine.current_player_index + 1) % len(game_engine.players)]
+        
         while True:
-            if game_engine.round_manager.empty == False:
-                game_engine.display_table()
-                actions = input(f"\n[{self.name}]: Enter 1 to use shotgun or enter 2 to use an item: ")
-                print("==================================================")
-            else:
-                print("Empty shotgun, reloading...")
-                sleep(2)
-                _ = input("Press [ENTER] to see the shotgun shells: ")
-                print(f"==================================================")
-                print("Here are the shells in the shotgun")
-                game_engine.round_manager.setup_shells(game_engine.difficulty)
-                if game_engine.difficulty == "easy":
-                    sleep(3)
-                else:
-                    game_engine.generate_loot_box()
-                break
+            game_engine.display_table()
+            actions = input(f"\n[{self.name}]: Enter 1 to use shotgun or enter 2 to use an item: ")
+            print("==================================================")
+            
             #Shotgun use
             if actions == '1':
                 answer = input("Shoot yourself or opponent? (Myself/Opponent): ").strip().lower()
@@ -45,7 +34,7 @@ class Player:
                     if shell_result == "blank":
                         print(f"{self.name} shot a blank. {self.name} keeps their turn.")
                         print("==================================================")
-                        sleep(2)
+                        sleep(1)
                         continue
                     else:
                         print(f"You shot yourself! The turn switches to {next_player.name}.")
@@ -64,7 +53,8 @@ class Player:
                     break
                 else:
                     print("Invalid input. Please enter: 'Myself'/'Opponent'")
-                    continue     
+                    continue
+                
             #Item use
             elif actions == '2': 
                 if not self.items:
@@ -275,19 +265,28 @@ class RoundManager:
                 self.empty = False
         else:
             self.shells = ["live"]
-            for i in range(7):
+            for i in range(3):
                 self.shells.append(random.choice(rounds))
                 self.empty = False
         print(f"{self.shells}\n")
         #Reorder self.shells randomly
         random.shuffle(self.shells)
-
+    
+    def reload_shotgun(self, difficulty):
+        print("==================================================")
+        print("Empty shotgun, reloading...")
+        sleep(1.5)
+        self.setup_shells(difficulty)  # Reload shells based on difficulty level
+        print("New shells loaded into the shotgun.")
+        print("==================================================")
+        self.empty = False
+        
     def get_next_shell(self):
         #After shooting, pop current shell from self.shells
         shell = self.shells.pop(0)
         if len(self.shells) == 0:
             self.empty = True
-        return  shell
+        return shell
     
 # Main GameEngine class
 class GameEngine:
@@ -335,18 +334,26 @@ class GameEngine:
         loading_bar(1)
         
         sleep(1)
-        self.display_table()
         
         #Game loop
         while self.check_game_status():
             current_player = self.players[self.current_player_index]
             current_player.player_action(self.round_manager, self)
+            
+            #Reload shotgun if empty
+            if self.round_manager.empty == True:
+                self.round_manager.reload_shotgun(self.difficulty)
+                if self.difficulty == "hard": #Regenerate lootbox if hard diff.
+                    self.generate_loot_box()
+                    sleep(1.5)
+                    
             self.switch_turn()
 
     def generate_loot_box(self):
         if self.difficulty == "hard":
             _ = input("Press [ENTER] to see get your lootbox: ")
             print(f"==================================================")
+            sleep(1)
             for player in self.players:
                 num_items = 4 if len(player.items)<=4 else 8-len(player.items)
                 loot_box = random.sample(list(self.loot_pool), num_items) 
