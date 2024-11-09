@@ -1,4 +1,5 @@
 import random
+import os
 from time import sleep
 
 def loading_bar(duration, length=30):
@@ -12,7 +13,7 @@ def loading_bar(duration, length=30):
 class Player:
     def __init__(self, name):
         self.name = name
-        self.lives = 3
+        self.lives = 1
         self.items = []
         self.double_damage = False
         
@@ -362,11 +363,7 @@ class GameEngine:
 
     def check_game_status(self): 
         alive_players = [player for player in self.players if player.is_alive()]
-        if len(alive_players) == 1:
-            print(f"The game is over! {alive_players[0].name} is the winner!")
-            self.display_winner(alive_players[0])
-            return False
-        return True
+        return len(alive_players) > 1
     
     def get_opponent(self, current_player):
         for player in self.players:
@@ -393,8 +390,15 @@ class GameEngine:
             print(f"{opponent_player.name} is safe with a blank shell.")
             return "blank"
         
+    def determine_winner(self):
+        alive_players = [player for player in self.players if player.is_alive()]
+        #variable = alive_players[0] if len(alive_players) > 1 else None
+        return alive_players[0]
+    
     def display_winner(self):
-        pass
+        winner = self.determine_winner()
+        if winner:
+            print(f"Congratualtions {winner}")
     
     def display_table(self):
         #Determine the maximum length for flexible table width
@@ -449,6 +453,50 @@ class GameEngine:
         print("|" + " " * (table_width - 2) + "|")
         print("-" * table_width)
 
+class SaveFile():
+    def __init__(self, user_name, wins = 0, losses = 0):
+        self.user_name = user_name
+        self.wins = wins
+        self.losses = losses
+        #Checks if a file with the user name's as a txt file
+        if not os.path.exists(f"{user_name}.txt"):
+            with open(f"{user_name}.txt", "w") as file:
+              self.find_player(self.user_name, file, self.wins, self.losses, new_player = True)
+            print(f"{self.user_name} save file has been created")
+        else:
+          #Opens the file to read over each line
+          with open(f"{user_name}.txt", "r") as file:
+            for line in file:
+              #Updates the wins to the current amount based on the file
+              if line.startswith("wins"):
+                words = line.strip().split()
+                self.wins = words[-1]
+              #Updates the losses to the current amount based on the file
+              if line.startswith("losses"):
+                words = line.strip().split()
+                self.losses = words[-1]
+          print(f"Player {self.user_name} save file has been updated")
+
+    def find_player(self, user_name,file, wins, losses, new_player = False):
+        if new_player == False:
+          #Updates the current save to accomodate new wins or losses
+            for line in file:
+                if line.startswith("username"):
+                    line = (f'username = "{user_name}"\n')
+                elif line.startswith("wins"):
+                    line = (f"wins = {wins}\n")
+                elif line.startswith("losses"):
+                    line = (f"losses = {losses}")
+            with open("game_stats.txt", "w") as file:
+                file.writelines(line)
+        else:
+          # Writes the defaults for each line for the new file
+            file.write(f"username = {self.user_name}\n")
+            file.write(f"wins = {self.wins}\n")
+            file.write(f"losses = {self.losses}")
+
+    def __str__(self):
+        return f"{self.user_name} has {self.wins} wins and {self.losses} losses"
 
 if __name__ == "__main__":
     while True:
@@ -475,4 +523,14 @@ if __name__ == "__main__":
         # Start the game after valid inputs are received
         game = GameEngine(difficulty, ai_mode)
         game.start_game()
+        while True:
+            save_input = input("Would you like to save this game? ")
+            if save_input not in ["yes", "no"]:
+                print(f"Invalid Response. Please answer: yes/no")
+                print(f"==================================================")
+                continue
+            save = save_input == 'yes'
+            break  # Exit the loop once valid input is provided
+        save_for_winner = SaveFile(game.determine_winner())
+        
         break
