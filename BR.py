@@ -494,7 +494,21 @@ class SaveFile():
             file.write(f"username = {self.user_name}\n")
             file.write(f"wins = {self.wins}\n")
             file.write(f"losses = {self.losses}")
+    def update_stats(self, win = False, lose = False):
+        change_win = self.wins
+        change_loss = self.losses
+        if win:
+            change_win = int(self.wins) + 1
+            print(f"Wins updated for player {self.user_name}")   
+        if lose:
+            change_loss = int(self.losses) + 1
+            print(f"Losses updated for player {self.user_name}")
+        with open(f"{self.user_name}.txt", "w") as file:
+            file.write(f"username = {self.user_name}\n")
+            file.write(f"wins = {change_win}\n")
+            file.write(f"losses = {change_loss}")
 
+        print(f"Player {self.user_name}'s stats have been updated")
     def __str__(self):
         return f"{self.user_name} has {self.wins} wins and {self.losses} losses"
 
@@ -531,6 +545,14 @@ if __name__ == "__main__":
                 continue
             save = save_input == 'yes'
             break  # Exit the loop once valid input is provided
-        save_for_winner = SaveFile(game.determine_winner())
+        for player in game.players:
+            if isinstance(player, ComputerPlayer):
+                save_for_winner = SaveFile(game.determine_winner())
+                save_for_winner.update_stats(True, False)
+            else:
+                save_for_winner = SaveFile(game.determine_winner())
+                save_for_winner.update_stats(True, False)
+                save_for_loser = SaveFile(game.get_opponent(game.players))
+                save_for_winner.update_stats(False, True)
         
         break
