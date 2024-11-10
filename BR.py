@@ -13,7 +13,7 @@ def loading_bar(duration, length=30):
 class Player:
     def __init__(self, name):
         self.name = name
-        self.lives = 3
+        self.lives = 1
         self.items = []
         self.double_damage = False
         
@@ -514,8 +514,7 @@ class SaveFile():
             file.write(f"username = {self.user_name}\n")
             file.write(f"wins = {change_win}\n")
             file.write(f"losses = {change_loss}")
-
-        print(f"Player {self.user_name}'s stats have been updated")
+            
     def __str__(self):
         return f"{self.user_name} has {self.wins} wins and {self.losses} losses"
 
@@ -552,14 +551,20 @@ if __name__ == "__main__":
                 continue
             save = save_input == 'yes'
             break  # Exit the loop once valid input is provided
+        winner = game.determine_winner()
+        loser = [player for player in game.players if player != winner][0]
         for player in game.players:
             if isinstance(player, ComputerPlayer):
-                save_for_winner = SaveFile(game.determine_winner())
-                save_for_winner.update_stats(True, False)
+                pvp = False
             else:
-                save_for_winner = SaveFile(game.determine_winner())
-                save_for_winner.update_stats(True, False)
-                save_for_loser = SaveFile(game.get_opponent(game.players))
-                save_for_winner.update_stats(False, True)
-        
+                pvp = True
+        if pvp:
+            save_for_winner = SaveFile(winner)
+            save_for_winner.update_stats(win = True)
+            save_for_loser = SaveFile(loser)
+            save_for_loser.update_stats(lose = True)
+        else:
+            save_for_winner = SaveFile(winner)
+            save_for_winner.update_stats(win = True)
+        print("Save complete.")
         break
