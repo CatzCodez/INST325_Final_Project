@@ -184,11 +184,36 @@ class Player:
 
 # AI player class
 class ComputerPlayer(Player):
+    """
+    The computer player in the game that the player goes against. Makes its own decisions
+    Subclass of the Player Class. The Computer player plays different actions depending on difficulty chosen. 
+    The 'easy' or 'hard' modes selected at the beginning of the game change the way the computer plays. 
+    
+    Attributes: 
+    name(str): The computer name, which is computer
+    difficulty(str): The difficulty of the computer, can be either 'hard' or 'easy'
+    
+    """
     def __init__(self, name="Computer", difficulty = "easy"):
+        """
+        Overwrites the __init__ method from Player, initializes a ComputerPlayer
+        
+        Args: 
+            name(str): Computer players name
+            difficulty: Easy or Hard level of diffulty that is set for the computer
+        """
         super().__init__(name)
         self.difficulty = difficulty
         
     def player_action(self, shotgun, game_engine):
+        """
+        Determines action of computer, if difficulty is hard or easy
+        
+        Args: 
+            shotgun(Shotgun): Shotgun object that represents the game shotgun
+            game_engine(Game Engine): Game engine that manages game state
+            
+        """
         print(f"\n[{self.name}'s Turn]")
        # difficulty = game_engine.difficulty
         if difficulty == "hard":
@@ -197,6 +222,15 @@ class ComputerPlayer(Player):
             self.decide_mediocre_action(shotgun, game_engine)
             
     def decide_smart_action(self, shotgun, game_engine):
+        """
+        Computer's actions if chosen difficulty is 'hard'
+        Args: 
+        shotgun(Shotgun): Shotgun used for shooting opponent or self
+        game_engine(GameEngine): Game Engine that manages the game state
+        Side Effects: 
+            Changes game state by either using the shotgun and taking a life of theirs or opponent. 
+            Changes game state by using an item
+        """
         opponent = self.get_user_opponent(game_engine)
         
         computer_items = [item for item in self.items if item.name in {"magnifying glass", "knife", "handcuff", "inverter", "beer"}]
@@ -221,9 +255,29 @@ class ComputerPlayer(Player):
     #Current issue is when the computer uses an Item, it goes straight back to the players turn
     #essentially skipping the computers turn every time they use an item, currently trying to work that out properly
     def medicore_action(self, shotgun, game_engine):
+        """
+        Computer shoots opponent only when game difficulty is set to 'easy'
+        
+        Args: 
+            shotgun(Shotgun): Shotgun used to shoot player
+            game_engine(GameEngine): Game engine that managers and runs game state
+        
+        Side Effects: 
+            Changes game state by shooting opponent, affecting amount of lives
+        """
         game_engine.handle_shoot(self,self)
     #gets the correct opponent for the COMPUTER, which is the user. Checks that user is not a Computer Player
     def get_user_opponent(self,game_engine):
+        """
+        Ensures and identifies if player is an instance of Player (human) or ComputerPlayer (computer)
+        Grabs correct opponent
+        
+        Args:
+            game_engine(GameEngine): Manages game state (get_opponent)
+            
+        Returns: 
+            Player: Player that is the Computer player's opponent
+        """
         for player in game_engine.players:
             if isinstance(player,Player) and not isinstance(player,ComputerPlayer):
                 return player
@@ -233,6 +287,7 @@ class ComputerPlayer(Player):
 
 # Class for items with effects
 class Item:
+    
     def __init__(self, name, effect):
         self.name = name
         self.effect = effect
