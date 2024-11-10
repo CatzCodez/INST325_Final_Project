@@ -290,7 +290,26 @@ class RoundManager:
     
 # Main GameEngine class
 class GameEngine:
+    """
+    The GameEngine class manages the core mechanics of a game involving two players (either human or AI) 
+    who take turns performing actions, such as shooting a shotgun with live or blank shells, and utilizing 
+    various items from a loot box. The game ends when only one player remains alive.
+
+    Attributes:
+        difficulty (str): The difficulty level of the game, which affects shell sequence and loot box frequency.
+        players (list): A list of players participating in the game. Either two human players or one human and one AI.
+        round_manager (RoundManager): Manages the sequence and status of shells in the shotgun.
+        loot_pool (list): A predefined list of available items (of class Item) that players can obtain.
+        current_player_index (int): The index of the player whose turn it currently is.
+    """
     def __init__(self, difficulty, ai_mode):
+        """
+        Initializes a game engine with difficulty and if ai mode is selected or not
+        
+        Args:
+            diificulty (str): see class documentation 
+            ai_mode (bool): If True, Player 2 is an AI opponent; if False, both players are human.
+        """
         self.difficulty = difficulty
         self.players = self.create_players(ai_mode)
         self.round_manager = RoundManager()
@@ -305,6 +324,18 @@ class GameEngine:
         self.current_player_index = 0
 
     def create_players(self, ai_mode):
+        """
+        Initializes the players for the game. Prompts the user to enter names for each player if playing 
+        human vs. human mode. If ai_mode is enabled, creates one human and one AI player.
+
+        Args:
+            ai_mode (bool): Determines whether the second player is an AI opponent.
+
+        Side effect:
+            Prints if the AI mode is selected, otherwise asks for the names for both players
+        Returns:
+            list: A list containing two player objects.
+        """
         player1_name = input("Enter name for Player 1: ")
         print(f"==================================================")
         player1 = Player(player1_name)
@@ -317,6 +348,14 @@ class GameEngine:
         return [player1, player2]
     
     def start_game(self):
+        """
+        Starts the main game loop, which includes setting up the initial shell sequence based on difficulty, 
+        generating a loot box, determining which player goes first, and managing player actions. The game 
+        continues until only one player remains alive.
+        
+        Side effects:
+            Prints the current difficulty and shows the amount of live and blank shells in the shotgun
+        """
         print(f"You are playing on [{self.difficulty} mode]")
         _ = input("Press [ENTER] to see the shotgun shells: ")
         print(f"==================================================")
@@ -350,6 +389,14 @@ class GameEngine:
             self.switch_turn()
 
     def generate_loot_box(self):
+        """
+        Generates a loot box with items based on the game's difficulty level. On hard difficulty, each player 
+        receives a selection of items. If a player already has items, the loot box is adjusted to avoid 
+        exceeding a set item limit per player.
+        
+        Side effects:
+            Prints the items of each player
+        """
         if self.difficulty == "hard":
             _ = input("Press [ENTER] to see get your lootbox: ")
             print(f"==================================================")
@@ -364,20 +411,51 @@ class GameEngine:
                 player.items.extend(loot_box)
     
     def switch_turn(self):
-        print(self.current_player_index)
+        """
+        Switches the turn to the next player by updating the `current_player_index` to the next player in the list.
+        """
         self.current_player_index = (self.current_player_index + 1) % len(self.players)
-        print(self.current_player_index)
 
     def check_game_status(self): 
+        """
+        Checks the status of the game by evaluating the number of alive players.
+
+        Returns:
+            bool: True if more than one player remains alive, otherwise False.
+        """
         alive_players = [player for player in self.players if player.is_alive()]
         return len(alive_players) > 1
     
     def get_opponent(self, current_player):
+        """
+        Finds and returns the opponent player who is still alive.
+
+        Args:
+            current_player (Player): The player for whom to find the opponent.
+
+        Returns:
+            Player: The opponent player, if alive.
+        """
         for player in self.players:
             if player != current_player and player.is_alive():
                 return player
 
     def handle_shoot(self, current_player, opponent_player):
+        """
+        Manages the shooting action by the current player against the opponent. Checks the type of shell used 
+        (live or blank) and applies damage if the shell is live. If the opponent has the double_damage effect, 
+        double damage is applied, and the effect is reset after use.
+
+        Args:
+            current_player (Player): The player taking the shot.
+            opponent_player (Player): The player targeted by the shot.
+            
+        Side effects:
+            Prints what shell the current player is shooting towards the opponent
+
+        Returns:
+            str: "live" if a live shell was used, "blank" otherwise.
+        """
         # Get and remove the first shell from the list
         current_shell = self.round_manager.get_next_shell()
         if self.round_manager.reveal_shell:
@@ -398,16 +476,34 @@ class GameEngine:
             return "blank"
         
     def determine_winner(self):
+        """
+        Finds the winner based on who ever is still alive
+        
+        Returns:
+            returns the first index of alive_players
+        """
         alive_players = [player for player in self.players if player.is_alive()]
         #variable = alive_players[0] if len(alive_players) > 1 else None
         return alive_players[0]
     
     def display_winner(self):
+        """
+        Displays a congratulations message for the winner
+        
+        Side effects:
+            Prints a congratulations message to the terminal
+        """
         winner = self.determine_winner()
         if winner:
-            print(f"Congratualtions {winner}")
+            print(f"Congratulations {winner}")
     
     def display_table(self):
+        """
+        Creates the table to show in the terminal
+        
+        Side effects:
+            prints dashes and pipes to showcase a table
+        """
         #Determine the maximum length for flexible table width
         max_name_length = max(len(player.name) for player in self.players)
         max_item_length = 4 * (10 + 2) - 2  # Account for up to 4 items per row, with space for ', '
@@ -461,14 +557,36 @@ class GameEngine:
         print("-" * table_width)
 
 class SaveFile():
+    """
+    Creates a save file with the user's name, wins, and losses
+    
+    Attributes:
+        user_name (string): the name of the user when asked at the beginning of the game
+        wins (int): how many wins the user currently has
+        losses (int): how many losses the user currently has
+    """
     def __init__(self, user_name, wins = 0, losses = 0):
+        """
+        Initializes a save file
+        
+        Args:
+            user_name (string): shown in class documentation 
+            wins (int): shown in class documentation 
+            losses (int): shown in class documentation 
+        
+        Side effects:
+            Initalizaes attribute user_name
+            Initializes attribute wins
+            Initializes attribute losses
+            Creates a file or reads a file if there is a file with the user's name
+        """
         self.user_name = user_name
         self.wins = wins
         self.losses = losses
         #Checks if a file with the user name's as a txt file
         if not os.path.exists(f"{user_name}.txt"):
             with open(f"{user_name}.txt", "w") as file:
-              self.find_player(self.user_name, file, self.wins, self.losses, new_player = True)
+              self.write_stats(self.user_name, file, self.wins, self.losses, new_player = True)
             print(f"{self.user_name} save file has been created")
         else:
           #Opens the file to read over each line
@@ -484,7 +602,18 @@ class SaveFile():
                 self.losses = words[-1]
           print(f"Player {self.user_name} save file has been updated")
 
-    def find_player(self, user_name,file, wins, losses, new_player = False):
+    def write_stats(self, user_name,file, wins, losses, new_player = False):
+        """
+        Writes the stats in the file
+        
+        Args:
+            user_name (String): the name of the user
+            file (File): a file that contains the stats for the user
+            wins (int): wins of the user
+            losses (int): losses of the user
+            new_player (boolean): False if the user is a new player, True otherwise
+                            (file does not exist for the current user)
+        """
         if new_player == False:
           #Updates the current save to accomodate new wins or losses
             for line in file:
@@ -501,7 +630,18 @@ class SaveFile():
             file.write(f"username = {self.user_name}\n")
             file.write(f"wins = {self.wins}\n")
             file.write(f"losses = {self.losses}")
+            
     def update_stats(self, win = False, lose = False):
+        """
+        Updates the user's stat based on a win or loss
+        
+        Args:
+            win (boolean): when the user gets a win, wins get increased by one and gets updated in the file
+            lose (boolean): when the user gets a loss, losses get increased by one and gets updated in the file
+            
+        Side effects:
+            Opens the user's file write and update their stats
+        """
         change_win = self.wins
         change_loss = self.losses
         if win:
@@ -559,6 +699,7 @@ if __name__ == "__main__":
             else:
                 pvp = True
         if pvp:
+            #If player vs player update save files for both users
             save_for_winner = SaveFile(winner)
             save_for_winner.update_stats(win = True)
             save_for_loser = SaveFile(loser)
