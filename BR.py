@@ -11,6 +11,16 @@ def loading_bar(duration, length=30):
 
 # Base class for players
 class Player:
+    """
+    Class that represents a Player in the game. The player makes certain actions
+    depending on the players choice. These including shooting or using an item in the lootbox
+    
+    Attributes: 
+        name(str): Name of player
+        lives(int): Current number of lives the player has
+        items(list): The items the player has in their lootbox
+    """
+    
     def __init__(self, name):
         self.name = name
         self.lives = 3
@@ -18,6 +28,16 @@ class Player:
         self.double_damage = False
         
     def player_action(self, shotgun, game_engine):
+        """
+        Method that represents the player's action
+        
+        Args: 
+            shotgun(Shotgun): Shotgun used for shooting opponent or their self
+            game_engine(GameEngine): Game engine that managers game state
+        
+        Side Effects: 
+            Players actions change game state, either losing a life, shooting, or using item
+        """
         next_player = game_engine.players[(game_engine.current_player_index + 1) % len(game_engine.players)]
         
         while True:
@@ -155,6 +175,17 @@ class Player:
                     print("Hint: The chances of being shot with a live round is pretty high!")
 
     def use_item(self, item, shotgun,game_engine):
+        """
+        Uses a item when Player chooses to use. Applies item's respective effect onto game_engine
+        
+        Args: 
+            item(item): Item to be used by player
+            shotgun(Shotgun): Shotgun that item can be used to effect
+            game_engine(GameEngine): Engine that runs the game state
+        Side Effects: 
+            Changes game state depdending on item used. Can change number of lives, shotgun shells, game state
+        """ 
+        
         next_player = game_engine.players[(game_engine.current_player_index + 1) % len(game_engine.players)]
         if(item.name == "magnifying glass"):
             print("================================================")
@@ -206,6 +237,11 @@ class Player:
             self.items.remove(item)
 
     def is_alive(self):
+        """
+        Checks if player is alive. 
+        Returns: 
+            bool: True if player lives is more than 0. 
+        """
         if self.lives > 0:
             return True
 
@@ -218,6 +254,13 @@ class Player:
             print(f"{self.name} has lost all lives and is out of the game!")
     
     def __str__(self):
+        """
+        Informal string representation of player
+        
+        Returns: 
+            str: Name of player
+        
+        """
         return self.name
 
 # AI player class
