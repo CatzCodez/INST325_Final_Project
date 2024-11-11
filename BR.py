@@ -13,7 +13,7 @@ def loading_bar(duration, length=30):
 class Player:
     def __init__(self, name):
         self.name = name
-        self.lives = 1
+        self.lives = 3
         self.items = []
         self.double_damage = False
         
@@ -22,9 +22,9 @@ class Player:
         
         while True:
             game_engine.display_table()
+            self.hints(shotgun)
             actions = input(f"\n[{self.name}]: Enter 1 to use shotgun or enter 2 to use an item: ")
             print("==================================================")
-            
             #Shotgun use
             if actions == '1':
                 answer = input("Shoot yourself or opponent? (Myself/Opponent): ").strip().lower()
@@ -114,7 +114,45 @@ class Player:
             else:
                 print("Invalid input. Please enter: '1'/'2'")         
                 continue
+
+    def hints(self, shotgun):
+        """
+        Provides hints for player based on items, shells in shotgun and lives player has
+        Side Effects:
+            prints hints based on certain conditions in the game
+        """
         
+        if self.items:
+            names = [item.name for item in self.items]
+            #Print hint based on item player has and what is most valuable at the moment
+            if "pill" in names and self.lives < 3:
+                print("Hint: Consider using the pill item to regenerate some health and avoid dying early!")
+            elif shotgun.reveal_shell == True and shotgun.shells[0] == "blank":
+                if "inverter" in names:
+                    print("Hint: Consider using the inverter item to change current shell to a live shell to do damage or shot yourself to extend your turn!")
+                else:
+                    print("Hint: Shooting yourself with a blank will allow you to take a turn right after!")
+            elif shotgun.reveal_shell == False and "magnifying glass" in names:
+                print("Hint: Consider using the magnifying glass item to reveal the current shell in the shotgun")
+            elif "handcuff" in names:
+                print("Hint: You can use the handcuff to skip the next player turn regardless of what happens this round!")
+            elif "beer" in names:
+                print("Hint: You can use the beer item to eject the current shell if you do not feel confident!")
+            elif "knife" in names and shotgun.reveal_shell == True:
+                print("Hint: Consider doubling your damage with the knife item")
+            elif "knife" in names and shotgun.reveal_shell == False:
+                print("Hint: Avoid using the knife if you do not know the current shell or risk it and recieve a big adventage!")
+        else:
+            # Get probability of player getting shot if at least one round in the shotgun is live and no items are present
+            probability = 0
+            for shells in shotgun.shells:
+                if shells == "live":
+                    probability +=1
+            if "live" in shotgun.shells:
+                if probability/len(shotgun.shells) < 0.50:
+                    print("Hint: The chances of being shot with a live round is low!")
+                else:
+                    print("Hint: The chances of being shot with a live round is pretty high!")
 
     def use_item(self, item, shotgun,game_engine):
         next_player = game_engine.players[(game_engine.current_player_index + 1) % len(game_engine.players)]
