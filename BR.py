@@ -304,11 +304,24 @@ class RoundManager:
     Class responsible for shotgun
     """
     def __init__(self):
+        """
+        Creates instance of RoundManager
+        Attributes:
+            reveal_shell (bool): Reveals current round of shotgun if player is allowed to
+            empty (bool): Checks if shells list is empty or not
+            shells (list): Created in setup_shells, contains shells to be used during the round, order and entries are random
+        """
         #Make a list of shells, start with one live round
         self.reveal_shell = False
         self.empty = True
         
     def setup_shells(self, difficulty):
+        """
+        Loads rounds into shotgun based on difficulty
+        Side Effects:
+            creates shells attribute and appends to it
+            shuffles shells list
+        """
         #List with two types of rounds
         rounds = ["live", "blank", "blank", "blank"]
 
@@ -328,6 +341,15 @@ class RoundManager:
         random.shuffle(self.shells)
     
     def reload_shotgun(self, difficulty):
+        """
+        Method responsible for reloading shotgun when empty
+        Args:
+            difficulty (str): Gets difficulty to load appropirate amount of shells
+        Side Effects:
+            puts in new entries for shells attribute
+            prints lines to show that shotgun is reloading
+            sets empty to False
+        """
         print("==================================================")
         print("Empty shotgun, reloading...")
         sleep(1.5)
@@ -337,6 +359,14 @@ class RoundManager:
         self.empty = False
         
     def get_next_shell(self):
+        """
+        Gets current shell
+        Side Effects:
+            pops items from shells
+            sets empty to true if shells is empty
+        Returns:
+            shell (str): Current shell in shotgun (live or blank)
+        """
         #After shooting, pop current shell from self.shells
         shell = self.shells.pop(0)
         if len(self.shells) == 0:
