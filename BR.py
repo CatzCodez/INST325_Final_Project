@@ -24,6 +24,7 @@ class Player:
     def __init__(self, name):
         self.name = name
         self.lives = 3
+        self.hints = 3
         self.items = []
         self.double_damage = False
         
@@ -42,8 +43,7 @@ class Player:
         
         while True:
             game_engine.display_table()
-            self.hints(shotgun)
-            actions = input(f"\n[{self.name}]: Enter 1 to use shotgun or enter 2 to use an item: ")
+            actions = input(f"\n[{self.name}]: Enter 1 to use shotgun, 2 to use an item or 3 for a hint ({self.hints} left): ")
             print("==================================================")
             #Shotgun use
             if actions == '1':
@@ -60,7 +60,7 @@ class Player:
                         print(f"You shot yourself! The turn switches to {next_player.name}.")
                         sleep(2)
                         break
-                elif answer == "opponent":
+                elif answer == "opponent" :
                     opponent = game_engine.get_opponent(self)
                     if opponent:
                         game_engine.handle_shoot(self, opponent)
@@ -131,18 +131,25 @@ class Player:
                             print("Item not used. Returning to item selection.")
                             print("================================================")
                             sleep(0.8)
+            elif actions == "3" :
+                if self.hints > 0:
+                    self.hint(shotgun)
+                    self.hints -= 1
+                else:
+                    print("No more hints")
+                    sleep(2)
             else:
-                print("Invalid input. Please enter: '1'/'2'")         
+                print("Invalid input. Please enter: '1'/'2'/'3'")         
                 continue
 
-    def hints(self, shotgun):
+    def hint(self, shotgun):
         """
         Provides hints for player based on items, shells in shotgun and lives player has
         Side Effects:
             prints hints based on certain conditions in the game
         """
         
-        if self.items:
+        if len(self.items) != 0:
             names = [item.name for item in self.items]
             #Print hint based on item player has and what is most valuable at the moment
             if "pill" in names and self.lives < 3:
@@ -173,6 +180,7 @@ class Player:
                     print("Hint: The chances of being shot with a live round is low!")
                 else:
                     print("Hint: The chances of being shot with a live round is pretty high!")
+        sleep(2)
 
     def use_item(self, item, shotgun,game_engine):
         """
@@ -295,12 +303,19 @@ class ComputerPlayer(Player):
             game_engine(Game Engine): Game engine that manages game state
             
         """
+        next_player = game_engine.players[(game_engine.current_player_index + 1) % len(game_engine.players)]
         print(f"\n[{self.name}'s Turn]")
-       # difficulty = game_engine.difficulty
-        if difficulty == "hard":
-            self.decide_smart_action(shotgun, game_engine)
-        else: 
-            self.decide_mediocre_action(shotgun, game_engine)
+        difficulty = game_engine.difficulty
+        while True:
+            print("==================================================")
+            sleep(1)
+            game_engine.display_table()
+            if difficulty == "hard":
+                act = self.decide_smart_action(shotgun, game_engine)
+            else: 
+                act = self.medicore_action(shotgun, game_engine, next_player)
+            if act == False:
+                break
             
     def decide_smart_action(self, shotgun, game_engine):
         """
@@ -335,7 +350,7 @@ class ComputerPlayer(Player):
             self.player_shotgun(self,self)
     #Current issue is when the computer uses an Item, it goes straight back to the players turn
     #essentially skipping the computers turn every time they use an item, currently trying to work that out properly
-    def medicore_action(self, shotgun, game_engine):
+    def medicore_action(self, shotgun, game_engine, next_player):
         """
         Computer shoots opponent only when game difficulty is set to 'easy'
         
@@ -346,7 +361,37 @@ class ComputerPlayer(Player):
         Side Effects: 
             Changes game state by shooting opponent, affecting amount of lives
         """
-        game_engine.handle_shoot(self,self)
+        #next_player = game_engine.players[(game_engine.current_player_index + 1) % len(game_engine.players)]
+        opponent = game_engine.get_opponent(self)
+        probability = 0
+        print("Computer is taking turn...")
+        sleep(1.5)
+        for shells in shotgun.shells:
+            if shells == "live":
+                probability +=1
+        if "live" in shotgun.shells:
+            if probability/len(shotgun.shells) < 0.50:
+                print(f"{self.name} chooses to shoot itself")
+                sleep(1.5)
+                shell = game_engine.handle_shoot(self,self)
+                if shell == "live":
+                    #print(f"{self.name} shot itself with a live round!")
+                    print(f"Switching to {next_player.name}'s turn.")
+                    return False
+                else:
+                    #print(f"{self.name} shot itself with a blank round and is safe!")
+                    return True
+            else:
+                print(f"{self.name} chooses to shoot {opponent.name}")
+                sleep(1.5)
+                shell = game_engine.handle_shoot(self,opponent)
+                if shell == "live":
+                    #print(f"{self.name} shot {next_player.name} with a live round!")
+                    print(f"Switching to {next_player.name}'s turn.")
+                else:
+                    #print(f"{self.name} shot {next_player.name} with a blank round and is safe!")
+                    print(f"Switching to {next_player.name}'s turn.")
+                return False
     #gets the correct opponent for the COMPUTER, which is the user. Checks that user is not a Computer Player
     def get_user_opponent(self,game_engine):
         """
