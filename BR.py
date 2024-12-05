@@ -792,7 +792,7 @@ class SaveFile():
         wins (int): how many wins the user currently has
         losses (int): how many losses the user currently has
     """
-    def __init__(self, user_name, wins = 0, losses = 0):
+    def __init__(self, user_name,matches_played = 0, wins = 0, losses = 0):
         """
         Initializes a save file
         
@@ -808,18 +808,22 @@ class SaveFile():
             Creates a file or reads a file if there is a file with the user's name
         """
         self.user_name = user_name
+        self.matches_played = matches_played
         self.wins = wins
         self.losses = losses
         #Checks if a file with the user name's as a txt file
         if not os.path.exists(f"{user_name}.txt"):
             with open(f"{user_name}.txt", "w") as file:
-              self.write_stats(self.user_name, file, self.wins, self.losses, new_player = True)
+              self.write_stats(self.user_name, file,self.matches_played, self.wins, self.losses, new_player = True)
             print(f"{self.user_name} save file has been created")
         else:
           #Opens the file to read over each line
           with open(f"{user_name}.txt", "r") as file:
             for line in file:
               #Updates the wins to the current amount based on the file
+              if line.startswith("mathces"):
+                words = line.strip().split()
+                self.matches_played = words[-1]
               if line.startswith("wins"):
                 words = line.strip().split()
                 self.wins = words[-1]
@@ -829,7 +833,7 @@ class SaveFile():
                 self.losses = words[-1]
           print(f"Player {self.user_name} save file has been updated")
 
-    def write_stats(self, user_name,file, wins, losses, new_player = False):
+    def write_stats(self, user_name,file,matches_played, wins, losses, new_player = False):
         """
         Writes the stats in the file
         
@@ -846,17 +850,20 @@ class SaveFile():
             for line in file:
                 if line.startswith("username"):
                     line = (f'username = "{user_name}"\n')
+                elif line.startswith("matches"):
+                    line = (f"matches played = {matches_played}\n")
                 elif line.startswith("wins"):
                     line = (f"wins = {wins}\n")
                 elif line.startswith("losses"):
-                    line = (f"losses = {losses}")
+                    line = (f"losses = {losses}\n")
             with open("game_stats.txt", "w") as file:
                 file.writelines(line)
         else:
           # Writes the defaults for each line for the new file
             file.write(f"username = {self.user_name}\n")
+            file.write(f"matches played = {self.matches_played}\n")
             file.write(f"wins = {self.wins}\n")
-            file.write(f"losses = {self.losses}")
+            file.write(f"losses = {self.losses}\n")
             
     def update_stats(self, win = False, lose = False):
         """
@@ -871,16 +878,20 @@ class SaveFile():
         """
         change_win = self.wins
         change_loss = self.losses
+        change_matches = self.matches_played
         if win:
             change_win = int(self.wins) + 1
+            change_matches = int(self.matches_played) + 1
             print(f"Wins updated for player {self.user_name}")   
         if lose:
             change_loss = int(self.losses) + 1
+            change_matches = int(self.matches_played) + 1
             print(f"Losses updated for player {self.user_name}")
         with open(f"{self.user_name}.txt", "w") as file:
             file.write(f"username = {self.user_name}\n")
+            file.write(f"matches played = {change_matches}\n")
             file.write(f"wins = {change_win}\n")
-            file.write(f"losses = {change_loss}")
+            file.write(f"losses = {change_loss}\n")
             
     def __str__(self):
         return f"{self.user_name} has {self.wins} wins and {self.losses} losses"
