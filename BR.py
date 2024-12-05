@@ -314,13 +314,13 @@ class ComputerPlayer(Player):
             sleep(1)
             game_engine.display_table()
             if difficulty == "hard":
-                act = self.decide_smart_action(shotgun, game_engine)
+                act = self.decide_smart_action(shotgun, game_engine, next_player)
             else: 
                 act = self.medicore_action(shotgun, game_engine, next_player)
             if act == False:
                 break
             
-    def decide_smart_action(self, shotgun, game_engine):
+    def decide_smart_action(self, shotgun, game_engine, next_player):
         """
         Computer's actions if chosen difficulty is 'hard'
         Args: 
@@ -336,23 +336,33 @@ class ComputerPlayer(Player):
         if computer_items: 
             print(f"{self.name} chooses to use {computer_items[0].name}")
             self.use_item(computer_items[0], shotgun, game_engine)
-            return
-        #If player has more than 1 live, Computer decides to shoot
-        if opponent and opponent.lives >=1:
-            print(f"{self.name} chooses to shoot {opponent.name}")
-            game_engine.handle_shoot(self, opponent)
-        #Goes into defensive mode as lives go down
-        elif self.lives <=3: 
+            sleep(1)
+            return True
+        #Goes into defensive mode as lives go down else If player has more than 1 live, Computer decides to shoot
+        if self.lives <=3: 
             defensive_items = [item for item in self.items if item.name in {"pill","handcuff"}]
             #chooses to use defensive item
             if defensive_items: 
                 self.use_item(defensive_items[0], shotgun, game_engine)
-            else: 
-                game_engine.handle_shoot(self,self)
+                sleep(1.5)
+                return True
+        elif opponent and opponent.lives >=1:
+            print(f"{self.name} chooses to shoot {opponent.name}")
+            game_engine.handle_shoot(self, opponent)
+            sleep(1.5)
+            return False
         else: 
-            self.player_shotgun(self,self)
-    #Current issue is when the computer uses an Item, it goes straight back to the players turn
-    #essentially skipping the computers turn every time they use an item, currently trying to work that out properly
+            print(f"{self.name} chooses to shoot itself")
+            sleep(1.5)
+            shell = game_engine.handle_shoot(self,self)
+            if shell == "live":
+                print(f"Switching to {next_player.name}'s turn.")
+                sleep(1)
+                return False
+            else:
+                sleep(1)
+                return True
+
     def medicore_action(self, shotgun, game_engine, next_player):
         """
         Computer shoots opponent only when game difficulty is set to 'easy'
