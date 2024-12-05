@@ -23,7 +23,7 @@ class Player:
     
     def __init__(self, name):
         self.name = name
-        self.lives = 3
+        self.lives = 4
         self.hints = 3
         self.items = []
         self.double_damage = False
@@ -451,7 +451,7 @@ class RoundManager:
             shuffles shells list
         """
         #List with two types of rounds
-        rounds = ["live", "blank", "blank", "blank"]
+        rounds = ["live", "live", "blank", "blank", "blank"]
 
         #Load certain amount of rounds to self.shells based on difficulty
         if difficulty == "easy":
@@ -461,7 +461,7 @@ class RoundManager:
                 self.empty = False
         else:
             self.shells = ["live"]
-            for i in range(3):
+            for i in range(7):
                 self.shells.append(random.choice(rounds))
                 self.empty = False
         print(f"{self.shells}\n")
@@ -481,7 +481,7 @@ class RoundManager:
         print("==================================================")
         print("Empty shotgun, reloading...")
         sleep(1.5)
-        self.setup_shells(difficulty)  # Reload shells based on difficulty level
+        self.setup_shells(difficulty)  #Reload shells based on difficulty level
         print("New shells loaded into the shotgun.")
         print("==================================================")
         self.empty = False
@@ -911,6 +911,7 @@ if __name__ == "__main__":
         game = GameEngine(difficulty, ai_mode)
         game.start_game()
         while True:
+            print(f"==================================================")
             save_input = input("Would you like to save this game? ")
             if save_input not in ["yes", "no"]:
                 print(f"Invalid Response. Please answer: yes/no")
