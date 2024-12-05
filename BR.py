@@ -27,6 +27,7 @@ class Player:
         self.hints = 3
         self.items = []
         self.double_damage = False
+        self.skip_turn = False
         
     def player_action(self, shotgun, game_engine):
         """
@@ -223,9 +224,9 @@ class Player:
         elif(item.name == "handcuff"):
             print("================================================")
             print(f"{self.name} has used handcuff")
-            game_engine.switch_turn()
-            game_engine.switch_turn()
-            print(f"{next_player}'s turn has been skipped")
+            opponent = game_engine.get_opponent(self)
+            opponent.skip_turn = True
+            print(f"{next_player}'s will be skipped!")
             print("================================================")
             self.items.remove(item)
             
@@ -626,7 +627,20 @@ class GameEngine:
         """
         Switches the turn to the next player by updating the `current_player_index` to the next player in the list.
         """
-        self.current_player_index = (self.current_player_index + 1) % len(self.players)
+        while True:
+            self.current_player_index = (self.current_player_index + 1) % len(self.players)
+            current_player = self.players[self.current_player_index]
+        
+            #Skip the turn if the player is marked as skipped
+            if current_player.skip_turn:
+                sleep(0.5)
+                print(f"{current_player.name}'s turn is skipped!")
+                current_player.skip_turn = False  #Reset the skip flag
+                sleep(1.5)
+                continue  #Move to the next player
+
+            if current_player.is_alive():
+                break
 
     def check_game_status(self): 
         """
@@ -686,6 +700,7 @@ class GameEngine:
         else:
             print(f"{opponent_player.name} is safe with a blank shell.")
             return "blank"
+        
         
     def determine_winner(self):
         """
