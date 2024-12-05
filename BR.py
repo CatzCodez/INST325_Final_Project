@@ -69,7 +69,6 @@ class Player:
                         print(f"Switching to {next_player.name}'s turn.")
                         sleep(2)
                         print("==================================================")
-                        #game_engine.display_table()
                     break
                 else:
                     print("Invalid input. Please enter: 'Myself'/'Opponent'")
@@ -125,7 +124,7 @@ class Player:
                             sleep(1)
                             self.use_item(chosen_item, shotgun,game_engine)
                             sleep(1)
-                            game_engine.display_table()
+                            #game_engine.display_table() <-- This right here causes display to print out twice
                             break
                         else:
                             print("Item not used. Returning to item selection.")
@@ -220,7 +219,7 @@ class Player:
             self.double_damage = True
             print("================================================")
             self.items.remove(item)
-    
+            
         elif(item.name == "handcuff"):
             print("================================================")
             print(f"{self.name} has used handcuff")
@@ -229,6 +228,7 @@ class Player:
             print(f"{next_player}'s turn has been skipped")
             print("================================================")
             self.items.remove(item)
+            
         elif(item.name == "inverter"):
             print("================================================")
             print(f"{self.name} used an inverter")
@@ -236,10 +236,12 @@ class Player:
             print(f"Current shell is now {shotgun.shells[0]}")
             print("================================================")
             self.items.remove(item)
+            
         elif(item.name == "beer"):
             print("================================================")
             print(f"{self.name} used beer")
             shotgun.shells.pop(0)
+            shotgun.reveal_shell = False
             print(f"The current shotgun shell has been removed")
             print("================================================")
             self.items.remove(item)
@@ -408,7 +410,6 @@ class ComputerPlayer(Player):
             if isinstance(player,Player) and not isinstance(player,ComputerPlayer):
                 return player
         return game_engine.get_opponent(self)
-            
         
 
 # Class for items with effects
@@ -678,7 +679,7 @@ class GameEngine:
             print(f"{current_player.name} has shot with a live shell!")
             
             # Apply double damage if the effect is active
-            damage = 2 if opponent_player.double_damage else 1
+            damage = 2 if current_player.double_damage else 1
             opponent_player.lose_life(damage)
             opponent_player.double_damage = False  # Reset the double damage effect after use
             return "live"
