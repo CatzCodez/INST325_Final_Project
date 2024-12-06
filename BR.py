@@ -193,6 +193,7 @@ class Player:
         Side Effects: 
             Changes game state depdending on item used. Can change number of lives, shotgun shells, game state
         """ 
+        game_engine.items_used[item.name] = game_engine.items_used.get(item.name,0) + 1
         
         next_player = game_engine.players[(game_engine.current_player_index + 1) % len(game_engine.players)]
         if(item.name == "magnifying glass"):
@@ -545,6 +546,7 @@ class GameEngine:
             Item('beer', 'eject_shell')
         ]
         self.current_player_index = 0
+        self.items_used = {item.name: 0 for item in self.loot_pool}
 
     def create_players(self, ai_mode):
         """
@@ -802,7 +804,7 @@ class SaveFile():
         wins (int): how many wins the user currently has
         losses (int): how many losses the user currently has
     """
-    def __init__(self, user_name,matches_played = 0, wins = 0, losses = 0):
+    def __init__(self, user_name,matches_played = 0, wins = 0, losses = 0, items_used = None):
         """
         Initializes a save file
         
@@ -821,6 +823,14 @@ class SaveFile():
         self.matches_played = matches_played
         self.wins = wins
         self.losses = losses
+        self.items_used = items_used if items_used else {
+            "magnifying glass": 0,
+            "knife": 0,
+            "inverter": 0,
+            "beer":0,
+            "pill": 0,
+            "handcuff": 0
+            }
         #Checks if a file with the user name's as a txt file
         if not os.path.exists(f"{user_name}.txt"):
             with open(f"{user_name}.txt", "w") as file:
@@ -874,8 +884,10 @@ class SaveFile():
             file.write(f"matches played = {self.matches_played}\n")
             file.write(f"wins = {self.wins}\n")
             file.write(f"losses = {self.losses}\n")
+            for item, count in self.items_used.items():
+                file.write(f"- {item}: {count}\n")
             
-    def update_stats(self, win = False, lose = False):
+    def update_stats(self, win = False, lose = False, items_used = None):
         """
         Updates the user's stat based on a win or loss
         
@@ -897,11 +909,17 @@ class SaveFile():
             change_loss = int(self.losses) + 1
             change_matches = int(self.matches_played) + 1
             print(f"Losses updated for player {self.user_name}")
+        if items_used:
+            for item in items_used:
+                if item in self.items_used:
+                    self.items_used[item] += 1
         with open(f"{self.user_name}.txt", "w") as file:
             file.write(f"username = {self.user_name}\n")
             file.write(f"matches played = {change_matches}\n")
             file.write(f"wins = {change_win}\n")
             file.write(f"losses = {change_loss}\n")
+            for item, count in self.items_used.items():
+                file.write(f"- {item}: {count}\n")
             
     def __str__(self):
         return f"{self.user_name} has {self.wins} wins and {self.losses} losses"
@@ -950,11 +968,11 @@ if __name__ == "__main__":
         if pvp:
             #If player vs player update save files for both users
             save_for_winner = SaveFile(winner)
-            save_for_winner.update_stats(win = True)
+            save_for_winner.update_stats(win = True, items_used= game.items_used)
             save_for_loser = SaveFile(loser)
             save_for_loser.update_stats(lose = True)
         else:
             save_for_winner = SaveFile(winner)
-            save_for_winner.update_stats(win = True)
+            save_for_winner.update_stats(win = True, items_used= game.items_used)
         print("Save complete.")
         break
