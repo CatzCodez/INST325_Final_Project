@@ -178,7 +178,7 @@ class Player:
                 print("Hint: Avoid using the knife if you do not know the current shell or risk it and recieve a big adventage!")
                 return 8
         else:
-            # Get probability of player getting shot if at least one round in the shotgun is live and no items are present
+            #Get probability of player getting shot if at least one round in the shotgun is live and no items are present
             probability = 0
             for shells in shotgun.shells:
                 if shells == "live":
@@ -475,7 +475,7 @@ class RoundManager:
                 self.empty = False
         else:
             self.shells = ["live"]
-            for i in range(7):
+            for i in range(6):
                 self.shells.append(random.choice(rounds))
                 self.empty = False
         print(f"{self.shells}\n")
