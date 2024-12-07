@@ -23,7 +23,7 @@ class Player:
     
     def __init__(self, name):
         self.name = name
-        self.lives = 2
+        self.lives = 4
         self.hints = 3
         self.items = []
         self.used_items = []
@@ -910,9 +910,14 @@ class SaveFile():
             file.write(f"matches played = {self.matches_played}\n")
             file.write(f"wins = {self.wins}\n")
             file.write(f"losses = {self.losses}\n")
-            for item,count in self.items_used.items():
+            file.write(f"Items used :\n")
+            # Sort items by usage count in descending order
+            sorted_items = sorted(self.items_used.items(), key=lambda x: x[1], reverse=True)
+        
+            # Write sorted items to file
+            for item, count in sorted_items:
                 file.write(f"- {item}: {count}\n")
-
+                
     def update_stats(self, win = False, lose = False, items_used = None):
         """
         Updates the user's stat based on a win or loss
@@ -944,8 +949,14 @@ class SaveFile():
             file.write(f"matches played = {change_matches}\n")
             file.write(f"wins = {change_win}\n")
             file.write(f"losses = {change_loss}\n")
-            for item, count in self.items_used.items():
+            file.write(f"Items used :\n")
+            # Sort items by usage count in descending order
+            sorted_items = sorted(self.items_used.items(), key=lambda x: x[1], reverse=True)
+        
+        # Write sorted items to file
+            for item, count in sorted_items:
                 file.write(f"- {item}: {count}\n")
+
    
     def __str__(self):
         return f"{self.user_name} has {self.wins} wins and {self.losses} losses"
