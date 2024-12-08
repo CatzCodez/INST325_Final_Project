@@ -342,22 +342,27 @@ class ComputerPlayer(Player):
             if act == False:
                 break
             
-    def decide_smart_action(self, shotgun, game_engine, next_player):
+    def decide_smart_action(self, shotgun, game_engine):
         """
-        Computer's actions if chosen difficulty is 'hard'
+        Computer's actions if chosen difficulty is 'hard', calls hint method form game_engine to help decide actions
         Args: 
         shotgun(Shotgun): Shotgun used for shooting opponent or self
         game_engine(GameEngine): Game Engine that manages the game state
+        Attributes:
+            inactivity (int): Keeps track of turns when computer does not use an item even though it has some
         Side Effects: 
             Changes game state by either using the shotgun and taking a life of theirs or opponent. 
             Changes game state by using an item
+        Returns:
+            True or False depending if computer's turn should continue
         """
         opponent = self.get_user_opponent(game_engine)
         
         computer_items = [item for item in self.items if item.name in {"magnifying glass", "knife", "handcuff", "inverter", "beer", "pill"}]
         item_name = [item.name for item in computer_items]
-    
+        #Call hint method to decide action
         action = game_engine.hint(shotgun, computer_items, self.lives, True)
+        #If inactivity is too high, use an agro item if possible
         if self.inactivity >=2:
             if 'knife' in item_name:
                 super().use_item(computer_items[item_name.index("knife")], shotgun, game_engine)
@@ -371,6 +376,7 @@ class ComputerPlayer(Player):
                 super().use_item(computer_items[item_name.index("beer")], shotgun, game_engine)
                 self.inactivity = 0
                 return True
+        #Use items or performs certain actions based on what hint returns
         if action == 1: 
             super().use_item(computer_items[item_name.index("pill")], shotgun, game_engine)
             self.inactivity = 0
@@ -684,6 +690,11 @@ class GameEngine:
     def hint(self, shotgun, items, lives, computer = False):
         """
         Provides hints for player based on items, shells in shotgun and lives player has
+        Args:
+            shotgun (shotgun): Get info on shotgun
+            items (item): Get list of users current items
+            lives (int): Get users current lifes remaining
+            computer (bool): False by default, returns a number if computer is true
         Side Effects:
             ???
         Returns:
