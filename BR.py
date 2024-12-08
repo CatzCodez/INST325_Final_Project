@@ -811,22 +811,28 @@ class SaveFile():
 
     Attributes:
         user_name (string): the name of the user when asked at the beginning of the game
+        matches_placed (int): how many matches the user has played 
         wins (int): how many wins the user currently has
         losses (int): how many losses the user currently has
+        items_used (list): list containing the names of the items the user has used
     """
     def __init__(self, user_name,matches_played = 0, wins = 0, losses = 0, items_used = None):
         """
-        Initializes a save file
+        Initializes a save file of a user 
 
         Args:
             user_name (string): shown in class documentation
+            matches_played (int): shown in class documentation 
             wins (int): shown in class documentation
             losses (int): shown in class documentation
+            items_used (list): shown in class documentation 
 
         Side effects:
             Initalizaes attribute user_name
+            Initializes attribute matches_played
             Initializes attribute wins
             Initializes attribute losses
+            Initializes attribute items_used
             Creates a file or reads a file if there is a file with the user's name
         """
         self.user_name = user_name
@@ -879,13 +885,16 @@ class SaveFile():
 
     def write_stats(self, user_name,file,matches_played, wins, losses, items_used, new_player = False):
         """
-        Writes the stats in the file
+        Writes the stats in the file which contain the total number of matches played, wins, losses, and each 
+        item in the game so far and how many times the user has used that item.
 
         Args:
             user_name (String): the name of the user
             file (File): a file that contains the stats for the user
+            matches_played: total number of matches played of the user 
             wins (int): wins of the user
             losses (int): losses of the user
+            items_used (list): list containing names of items the user has used 
             new_player (boolean): False if the user is a new player, True otherwise
                             (file does not exist for the current user)
         """
@@ -925,6 +934,8 @@ class SaveFile():
         Args:
             win (boolean): when the user gets a win, wins get increased by one and gets updated in the file
             lose (boolean): when the user gets a loss, losses get increased by one and gets updated in the file
+            items_used (list): a list that contains the names of the items the user has used 
+
 
         Side effects:
             Opens the user's file write and update their stats
@@ -1005,13 +1016,18 @@ if __name__ == "__main__":
         if pvp:
             #If player vs player update save files for both users
             save_for_winner = SaveFile(winner)
-            print(winner.used_items)
             save_for_winner.update_stats(win = True, items_used = winner.used_items)
             save_for_loser = SaveFile(loser)
-            print(loser.used_items)
             save_for_loser.update_stats(lose = True, items_used = loser.used_items)
         else:
-            save_for_winner = SaveFile(winner)
-            save_for_winner.update_stats(win = True, items_used = winner.used_items )
+            if isinstance(winner,ComputerPlayer):
+                print("Computer wins")
+                save_for_loser = SaveFile(loser)
+                save_for_loser.update_stats(lose = True, items_used= loser.used_items)
+            else:
+                print("Computer loses!")
+                save_for_winner = SaveFile(winner)
+                save_for_winner.update_stats(win = True, items_used = winner.used_items)
+                
         print("Save complete.")
         break
