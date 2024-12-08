@@ -352,7 +352,6 @@ class ComputerPlayer(Player):
             Changes game state by either using the shotgun and taking a life of theirs or opponent. 
             Changes game state by using an item
         """
-        print(self.inactivity)
         opponent = self.get_user_opponent(game_engine)
         
         computer_items = [item for item in self.items if item.name in {"magnifying glass", "knife", "handcuff", "inverter", "beer", "pill"}]
