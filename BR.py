@@ -134,8 +134,9 @@ class Player:
                             sleep(0.8)
             elif actions == "3" :
                 if self.hints > 0:
-                    self.hint(shotgun)
+                    print(game_engine.hint(shotgun, self.items, self.lives))
                     self.hints -= 1
+                    sleep(2)
                 else:
                     print("No more hints")
                     sleep(2)
@@ -314,6 +315,7 @@ class ComputerPlayer(Player):
         """
         super().__init__(name)
         self.difficulty = difficulty
+        self.inactivity = 0
         
     def player_action(self, shotgun, game_engine):
         """
@@ -331,6 +333,8 @@ class ComputerPlayer(Player):
             print("==================================================")
             sleep(1)
             game_engine.display_table()
+            print("Computer is deciding next action...")
+            sleep(1.5)
             if difficulty == "hard":
                 act = self.decide_smart_action(shotgun, game_engine, next_player)
             else: 
@@ -348,31 +352,86 @@ class ComputerPlayer(Player):
             Changes game state by either using the shotgun and taking a life of theirs or opponent. 
             Changes game state by using an item
         """
+        print(self.inactivity)
         opponent = self.get_user_opponent(game_engine)
         
-        computer_items = [item for item in self.items if item.name in {"magnifying glass", "knife", "handcuff", "inverter", "beer"}]
-        
-        action = super().hint(shotgun)
+        computer_items = [item for item in self.items if item.name in {"magnifying glass", "knife", "handcuff", "inverter", "beer", "pill"}]
+        item_name = [item.name for item in computer_items]
+    
+        action = game_engine.hint(shotgun, computer_items, self.lives, True)
+        if self.inactivity >=2:
+            if 'knife' in item_name:
+                super().use_item(computer_items[item_name.index("knife")], shotgun, game_engine)
+                self.inactivity = 0
+                return True
+            elif 'inverter' in item_name:
+                super().use_item(computer_items[item_name.index("inverter")], shotgun, game_engine)
+                self.inactivity = 0
+                return True
+            elif 'beer' in item_name:
+                super().use_item(computer_items[item_name.index("beer")], shotgun, game_engine)
+                self.inactivity = 0
+                return True
         if action == 1: 
-            super().use_item(computer_items.index("pill"), shotgun, game_engine)
+            super().use_item(computer_items[item_name.index("pill")], shotgun, game_engine)
+            self.inactivity = 0
+            sleep(1.5)
+            return True
         elif action == 2:
-            super().use_item(computer_items.index("inverter"), shotgun, game_engine)
+            super().use_item(computer_items[item_name.index("inverter")], shotgun, game_engine)
+            self.inactivity = 0
+            sleep(1.5)
+            return True
         elif action == 3: 
-            game_engine.handle_shoot(self,self)
+            game_engine.handle_shoot(self, opponent)
+            self.inactivity = 0
+            sleep(1.5)
+            return False
         elif action == 4: 
-            super().use_item(computer_items.index("magnifying glass"), shotgun, game_engine)
+            super().use_item(computer_items[item_name.index("magnifying glass")], shotgun, game_engine)
+            self.inactivity = 0
+            sleep(1.5)
+            return True
         elif action == 5: 
-            super().use_item(computer_items.index("handcuff"), shotgun, game_engine)
+            super().use_item(computer_items[item_name.index("handcuff")], shotgun, game_engine)
+            self.inactivity = 0
+            sleep(1.5)
+            return True
         elif action == 6:
-            super().use_item(computer_items.index("beer"), shotgun, game_engine)
+            super().use_item(computer_items[item_name.index("beer")], shotgun, game_engine)
+            self.inactivity = 0
+            sleep(1.5)
+            return True
         elif action ==7: 
-            super().use_item(computer_items.index("knife"), shotgun, game_engine)
+            super().use_item(computer_items[item_name.index("knife")], shotgun, game_engine)
+            self.inactivity = 0
+            sleep(1.5)
         elif action == 9: 
-            game_engine.handle_shoot(self,self)
+            print("Computer chooses to shot itself")
+            sleep(0.8)
+            shell = game_engine.handle_shoot(self,self)
+            self.inactivity = 0
+            sleep(1.5)
+            if shell == "blank":
+                return True
+            else:
+                return False
         elif action == 10: 
+            print(f"Computer chooses to shot {opponent}")
+            sleep(0.8)
             game_engine.handle_shoot(self,opponent)
+            sleep(1.5)
+            self.inactivity+=1
+            return False
+        else:
+            print(f"Computer chooses to shot {opponent}")
+            sleep(0.8)
+            game_engine.handle_shoot(self,opponent)
+            sleep(1.5)
+            self.inactivity+=1
+            return False
         
-  
+
 
     def medicore_action(self, shotgun, game_engine, next_player):
         """
@@ -623,6 +682,59 @@ class GameEngine:
                     
             self.switch_turn()
 
+    def hint(self, shotgun, items, lives, computer = False):
+        """
+        Provides hints for player based on items, shells in shotgun and lives player has
+        Side Effects:
+            ???
+        Returns:
+            Hint or number based on if computer calls method
+        
+        """
+        items = items
+        if len(items) != 0:
+            names = [item.name for item in items]
+            #Print hint based on item player has and what is most valuable at the moment or returns number if computer is calling hint
+            if "pill" in names and lives < 3:
+                return 1 if computer else "Hint: Consider using the pill item to regenerate some health and avoid dying early!"
+
+            elif shotgun.reveal_shell == True:
+                if "inverter" in names and shotgun.shells[0] == "blank":
+                    return 2 if computer else "Hint: Consider using the inverter item to change current shell to a live shell to do damage or shot yourself to extend your turn!"
+                
+                elif "knife" not in names and shotgun.shells[0] == "live":
+                    return 3 if computer else "Hint: Live round in the chamber, now is the chance to do damage!"
+                
+                elif "knife" in names:
+                    return 7 if computer else "Hint: Consider doubling your damage with the knife item"
+                
+                elif shotgun.shells[0] == "blank":
+                    return 9 if computer else "It is safe to shoot yourself, extending your turn!"
+            
+            elif shotgun.reveal_shell == False and "magnifying glass" in names:
+                return 4 if computer else "Hint: Consider using the magnifying glass item to reveal the current shell in the shotgun"
+            
+            elif "handcuff" in names:
+                return 5 if computer else "Hint: You can use the handcuff to skip the next player turn regardless of what happens this round!"
+            
+            elif "beer" in names:
+                return 6 if computer else "Hint: You can use the beer item to eject the current shell if you do not feel confident!"
+            
+            elif "knife" in names and shotgun.reveal_shell == False:
+                return "Hint: Avoid using the knife if you do not know the current shell or risk it and recieve a big adventage!" if computer == False else None
+        else:
+            # Get probability of player getting shot if at least one round in the shotgun is live and no items are present
+            probability = 0
+            for shells in shotgun.shells:
+                if shells == "live":
+                    probability +=1
+            if "live" in shotgun.shells:
+                if probability/len(shotgun.shells) < 0.50:
+                    return 9 if computer else "Hint: The chances of being shot with a live round is low!"
+                
+                else:
+                    return 10 if computer else "Hint: The chances of being shot with a live round is pretty high!"
+
     def generate_loot_box(self):
         """
         Generates a loot box with items based on the game's difficulty level. On hard difficulty, each player 
@@ -720,6 +832,7 @@ class GameEngine:
             opponent_player.double_damage = False  # Reset the double damage effect after use
             return "live"
         else:
+            opponent_player.double_damage = False
             print(f"{opponent_player.name} is safe with a blank shell.")
             return "blank"
         
