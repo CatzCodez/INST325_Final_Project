@@ -336,7 +336,7 @@ class ComputerPlayer(Player):
             print("Computer is deciding next action...")
             sleep(1.5)
             if difficulty == "hard":
-                act = self.decide_smart_action(shotgun, game_engine, next_player)
+                act = self.decide_smart_action(shotgun, game_engine)
             else: 
                 act = self.medicore_action(shotgun, game_engine, next_player)
             if act == False:
