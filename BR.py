@@ -84,8 +84,10 @@ class Player:
                 while True:
                     print('These are your available items:')
                     counter = 1
+                    item_map = {}
                     for item in self.items:
                         print(f"{counter}. [{item.name}]")
+                        item_map[str(counter)]= item
                         counter +=1
                     item_chosen = input("Choose item OR type 'back' to go back: ").strip().lower()
                     chosen_item = None
@@ -93,14 +95,18 @@ class Player:
                         break
                     
                     #If an actual item is chosen
-                    for item in self.items:
-                        if item.name == item_chosen:
-                            chosen_item = item
-                            break
+                    if item_chosen in item_map:
+                        chosen_item = item_map[item_chosen]
                     else:
+                        for item in self.items:
+                            if item.name == item_chosen:
+                                chosen_item = item
+                                break
+                    if not chosen_item:
                         print("================================================")
                         print("Invalid input. Please enter: Corresponding item #, or item name")
                         print("==================================================")
+                        continue
                     if chosen_item:
                         print("================================================")
                         print(f"Chosen item: {chosen_item}\n")
