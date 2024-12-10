@@ -176,7 +176,7 @@ class Player:
         elif(item.name == "pill"):
             print("================================================")
             print(f"{self.name} used a pill.")
-            if self.lives < 3:
+            if self.lives < 4:
                 self.lives += 1
                 print(f"{self.name} has regained one life.")
             else:
