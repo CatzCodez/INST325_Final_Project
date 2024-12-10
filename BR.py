@@ -259,6 +259,7 @@ class ComputerPlayer(Player):
     Attributes: 
     name(str): The computer name, which is computer
     difficulty(str): The difficulty of the computer, can be either 'hard' or 'easy'
+    inactivity (int): Number of turns computer takes without using items/taking default action
     
     """
     def __init__(self, name="Computer", difficulty = "easy"):
@@ -280,7 +281,9 @@ class ComputerPlayer(Player):
         Args: 
             shotgun(Shotgun): Shotgun object that represents the game shotgun
             game_engine(Game Engine): Game engine that manages game state
-            
+        Side Effects:
+            prints computer is taking turn
+            prints computer is deciding next action
         """
         next_player = game_engine.players[(game_engine.current_player_index + 1) % len(game_engine.players)]
         print(f"\n[{self.name}'s Turn]")
@@ -310,7 +313,7 @@ class ComputerPlayer(Player):
             Changes game state by either using the shotgun and taking a life of theirs or opponent. 
             Changes game state by using an item
         Returns:
-            True or False depending if computer's turn should continue
+            bool: True or False depending on if computer's turn should continue
         """
         opponent = self.get_user_opponent(game_engine)
         
@@ -404,6 +407,10 @@ class ComputerPlayer(Player):
         
         Side Effects: 
             Changes game state by shooting opponent, affecting amount of lives
+            prints computer is taking turn
+            prints computer's action
+        Returns:
+            bool: True or False depending if action taken should end current turn
         """
         #next_player = game_engine.players[(game_engine.current_player_index + 1) % len(game_engine.players)]
         opponent = game_engine.get_opponent(self)
@@ -490,6 +497,7 @@ class RoundManager:
         Side Effects:
             creates shells attribute and appends to it
             shuffles shells list
+            prints shells
         """
         #List with two types of rounds
         rounds = ["live", "live", "blank", "blank", "blank"]
@@ -645,16 +653,14 @@ class GameEngine:
 
     def hint(self, shotgun, items, lives, computer = False):
         """
-        Provides hints for player based on items, shells in shotgun and lives player has
+        Provides hints for player based on items, shells in shotgun and lives player has or action computer should take, depending on if computer calls method
         Args:
             shotgun (shotgun): Get info on shotgun
             items (item): Get list of users current items
             lives (int): Get users current lifes remaining
-            computer (bool): False by default, returns a number if computer is true
-        Side Effects:
-            ???
+            computer (bool): Optional parameter, False by default
         Returns:
-            Hint or number based on if computer calls method
+            str: Hint to print based on current game or int: Action number that computer should take
         
         """
         items = items
