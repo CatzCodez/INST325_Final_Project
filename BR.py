@@ -276,12 +276,13 @@ class ComputerPlayer(Player):
         
     def player_action(self, shotgun, game_engine):
         """
-        Determines action of computer, if difficulty is hard or easy
+        Determines action of computer based on the difficulty of the game and calls appropriate methods
         
         Args: 
             shotgun(Shotgun): Shotgun object that represents the game shotgun
             game_engine(Game Engine): Game engine that manages game state
         Side Effects:
+        prints display table
             prints computer is taking turn
             prints computer is deciding next action
         """
@@ -307,11 +308,10 @@ class ComputerPlayer(Player):
         Args: 
         shotgun(Shotgun): Shotgun used for shooting opponent or self
         game_engine(GameEngine): Game Engine that manages the game state
-        Attributes:
-            inactivity (int): Keeps track of turns when computer does not use an item even though it has some
         Side Effects: 
             Changes game state by either using the shotgun and taking a life of theirs or opponent. 
-            Changes game state by using an item
+            Changes game state by using an item.
+            resets self.inacivity or adds to self.inactivity depending on the action it takes.
         Returns:
             bool: True or False depending on if computer's turn should continue
         """
@@ -394,12 +394,10 @@ class ComputerPlayer(Player):
             sleep(1.5)
             self.inactivity+=1
             return False
-        
-
 
     def medicore_action(self, shotgun, game_engine, next_player):
         """
-        Computer shoots opponent only when game difficulty is set to 'easy'
+        Responsible for actions done by computer on easy mode. Decides who to shoot based on the number of shells in the shotgun and how likely they are to shoot a live or blank shot.
         
         Args: 
             shotgun(Shotgun): Shotgun used to shoot player
@@ -463,29 +461,40 @@ class ComputerPlayer(Player):
 
 # Class for items with effects
 class Item:
-    
+    """
+    Creates item object and assigns the effect for them
+    Attributes:
+        name (str): name of item
+        effect (str): effect of the item
+    """
     def __init__(self, name, effect):
+        """
+        Creates instance of item object
+        Args:
+            name (str): name of item
+            effect (str): effect of item
+        """
         self.name = name
         self.effect = effect
 
-    def apply_effect(self, player):
-        pass
-    
     def __str__(self):
+        """
+        Creates informal representation for item which is just the name of the item
+        """
         return f"{self.name}"
 
 # RoundManager class for managing game rounds
 class RoundManager:
     """
-    Class responsible for shotgun
+    Class responsible for shotgun such as shooting, reloading, and any effects to the shells
+    Attributes:
+        reveal_shell (bool): Reveals current round of shotgun if player is allowed to
+        empty (bool): Checks if shells list is empty or not
+        shells (list): Created in setup_shells, contains shells to be used during the round, order and entries are random
     """
     def __init__(self):
         """
         Creates instance of RoundManager
-        Attributes:
-            reveal_shell (bool): Reveals current round of shotgun if player is allowed to
-            empty (bool): Checks if shells list is empty or not
-            shells (list): Created in setup_shells, contains shells to be used during the round, order and entries are random
         """
         #Make a list of shells, start with one live round
         self.reveal_shell = False
@@ -833,7 +842,7 @@ class GameEngine:
     
     def display_table(self):
         """
-        Creates the table to show in the terminal
+        Creates the table that displays both player's items, lives and the number of shells in the shotgun so user is able to see the current game state
         
         Side effects:
             prints dashes and pipes to showcase a table
